@@ -1,0 +1,43 @@
+{
+  "entities": {
+    "users": {
+      "title": "User",
+      "description": "User profile data",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "handle": { "type": "string" },
+        "avatar": { "type": "string" },
+        "bio": { "type": "string" },
+        "hoursPlayed": { "type": "number" },
+        "gamesLoggedCount": { "type": "number" },
+        "reviewsWrittenCount": { "type": "number" }
+      }
+    },
+    "posts": {
+      "title": "Post",
+      "description": "Social feed posts",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userAvatar": { "type": "string" },
+        "content": { "type": "string" },
+        "likesCount": { "type": "number" },
+        "createdAt": { "type": "string" }
+      }
+    },
+    "gameLogs": {
+      "title": "GameLog",
+      "description": "User logged games",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "gameId": { "type": "string" },
+        "rating": { "type": "number" },
+        "hoursPlayed": { "type": "number" },
+        "status": { "type": "string" }
+      }
+    }
+  }
+}

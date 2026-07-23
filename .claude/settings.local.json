@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs wc -l)",
+      "Bash(npm --version)",
+      "Bash(command -v bun)",
+      "Bash(npm install *)",
+      "Bash(echo \"=== EXIT: $? ===\")",
+      "Bash(cd \"C:/Users/Ahmed/.claude/projects/Pixels\" && mkdir -p worker/src && echo created)"
+    ]
+  }
+}

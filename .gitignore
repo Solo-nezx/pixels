@@ -1,0 +1,14 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Cloudflare Worker
+worker/node_modules/
+worker/.wrangler/
+worker/.dev.vars
+.dev.vars

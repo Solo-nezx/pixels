@@ -1,0 +1,6 @@
+{
+  "name": "Pixels",
+  "description": "A mobile-first social network for gamers blending game logging, reviews, social feeds, and marketplace with Arabic & English support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

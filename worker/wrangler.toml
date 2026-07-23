@@ -1,0 +1,39 @@
+name = "pixels-api"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+
+# ---------------------------------------------------------------------------
+# Custom domain: binds the Worker to api.pixelg.net. Because pixelg.net is
+# already a zone in your Cloudflare account, deploying will automatically
+# create the DNS record + TLS certificate for this hostname.
+# (You can delete this block to use the free *.workers.dev URL instead.)
+# ---------------------------------------------------------------------------
+routes = [
+  { pattern = "api.pixelg.net", custom_domain = true }
+]
+
+# ---------------------------------------------------------------------------
+# Public (non-secret) variables. Safe to keep here.
+# ALLOWED_ORIGIN must match the origin the frontend is served from so the
+# OAuth popup's postMessage is accepted.
+# DISCORD_REDIRECT_URI must be added verbatim to your Discord app's
+# "Redirects" list in the Discord Developer Portal.
+#
+# For LOCAL development, override these two temporarily to:
+#   ALLOWED_ORIGIN = "http://localhost:3000"
+#   DISCORD_REDIRECT_URI = "http://localhost:8787/auth/discord/callback"
+# ---------------------------------------------------------------------------
+[vars]
+ALLOWED_ORIGIN = "https://www.pixelg.net"
+DISCORD_REDIRECT_URI = "https://api.pixelg.net/auth/discord/callback"
+DISCORD_CLIENT_ID = "1082945314069151744"
+
+# ---------------------------------------------------------------------------
+# Secrets — DO NOT put these here. Set them with wrangler (never commit them):
+#
+#   wrangler secret put DISCORD_CLIENT_SECRET
+#   wrangler secret put STEAM_API_KEY
+#   wrangler secret put TURNSTILE_SECRET
+#
+# You may also set DISCORD_CLIENT_ID as a plain var above (it is public).
+# ---------------------------------------------------------------------------

@@ -3,9 +3,7 @@
 interface ImportMetaEnv {
   /** RAWG video-game database key (https://rawg.io/apidocs) — powers live game browsing/search. */
   readonly VITE_RAWG_API_KEY?: string;
-  /** Discord application Client ID (public) — used to build the OAuth authorize URL. */
-  readonly VITE_DISCORD_CLIENT_ID?: string;
-  /** Base URL of the deployed Cloudflare Worker, e.g. https://pixels-api.you.workers.dev */
+  /** Base URL of the deployed Cloudflare Worker (optional; enables Steam sign-in). */
   readonly VITE_WORKER_URL?: string;
   /** Cloudflare Turnstile site key (public) for the login bot-check. */
   readonly VITE_TURNSTILE_SITE_KEY?: string;

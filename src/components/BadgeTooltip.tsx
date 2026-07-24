@@ -129,7 +129,7 @@ export const BadgeTooltip: React.FC<BadgeTooltipProps> = ({ badge, children, pos
 
           {/* Earn Criteria Description */}
           <div className="text-[11px] text-slate-300 leading-snug mb-2">
-            <span className="font-bold text-[#2DD4BF] block mb-0.5">
+            <span className="font-bold text-[#F43F5E] block mb-0.5">
               {language === 'ar' ? 'معايير الإنجاز:' : 'Achievement Criteria:'}
             </span>
             {description}
@@ -140,11 +140,11 @@ export const BadgeTooltip: React.FC<BadgeTooltipProps> = ({ badge, children, pos
             <div className="pt-1.5 border-t border-slate-800/80">
               <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 mb-1">
                 <span>{language === 'ar' ? 'نسبة التقدم' : 'Criteria Progress'}</span>
-                <span className="text-[#7C5CFF]">{badge.progressCurrent} / {badge.progressMax} ({progressPercent}%)</span>
+                <span className="text-[#7C3AED]">{badge.progressCurrent} / {badge.progressMax} ({progressPercent}%)</span>
               </div>
               <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
                 <div 
-                  className="bg-gradient-to-r from-[#7C5CFF] to-[#2DD4BF] h-full rounded-full"
+                  className="bg-gradient-to-r from-[#7C3AED] to-[#F43F5E] h-full rounded-full"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>

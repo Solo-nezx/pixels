@@ -10,7 +10,25 @@ import {
   onAuthStateChanged,
   User as FirebaseUser
 } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+  addDoc,
+  arrayUnion,
+  arrayRemove,
+  increment,
+  writeBatch,
+} from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import firebaseConfig from '../../firebase-applet-config.json';
 
@@ -49,8 +67,8 @@ export async function uploadFileToFirebaseStorage(file: File, folder: string = '
   }
 }
 
-export { 
-  signInWithPopup, 
+export {
+  signInWithPopup,
   firebaseSignOut,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -58,8 +76,20 @@ export {
   onAuthStateChanged,
   doc,
   getDoc,
+  getDocs,
   setDoc,
-  updateDoc
+  updateDoc,
+  deleteDoc,
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+  addDoc,
+  arrayUnion,
+  arrayRemove,
+  increment,
+  writeBatch
 };
 export type { FirebaseUser };
 

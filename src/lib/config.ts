@@ -9,17 +9,16 @@ const env = (import.meta as unknown as { env?: Record<string, string> }).env || 
 
 export const config = {
   rawgApiKey: env.VITE_RAWG_API_KEY || '',
-  discordClientId: env.VITE_DISCORD_CLIENT_ID || '',
   workerUrl: (env.VITE_WORKER_URL || '').replace(/\/$/, ''),
   turnstileSiteKey: env.VITE_TURNSTILE_SITE_KEY || '',
+  // Steam sign-in is served by the built-in Netlify Function (steam-auth);
+  // enable the button with VITE_ENABLE_STEAM_LOGIN=1 (needs STEAM_API_KEY set
+  // in the Netlify environment).
+  enableSteamLogin: env.VITE_ENABLE_STEAM_LOGIN === '1',
 };
 
-/** Discord sign-in is available once we know the client id and where to send the callback. */
-export const isDiscordConfigured = (): boolean =>
-  Boolean(config.discordClientId && config.workerUrl);
-
-/** Direct Steam (OpenID) sign-in only needs the Worker — no client secret. */
-export const isSteamConfigured = (): boolean => Boolean(config.workerUrl);
+/** Steam (OpenID) sign-in via the built-in Netlify Function. */
+export const isSteamConfigured = (): boolean => config.enableSteamLogin;
 
 /** Turnstile bot-check is shown only when a site key is present. */
 export const isTurnstileConfigured = (): boolean => Boolean(config.turnstileSiteKey);

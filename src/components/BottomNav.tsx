@@ -22,7 +22,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ openCreatePostModal }) => 
   const itemClass = (tab: MainTab) =>
     `relative flex flex-col items-center gap-1 transition-all ${
       activeTab === tab
-        ? 'text-[#7C5CFF] scale-105'
+        ? 'text-[#7C3AED] scale-105'
         : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
     }`;
 
@@ -45,7 +45,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ openCreatePostModal }) => 
         {/* Center Create Post */}
         <button
           onClick={openCreatePostModal}
-          className="relative -top-3 p-3 rounded-full bg-gradient-to-tr from-[#7C5CFF] to-[#2DD4BF] text-white shadow-lg shadow-[#7C5CFF]/30 hover:scale-110 active:scale-95 transition-all"
+          className="relative -top-3 p-3 rounded-full bg-gradient-to-tr from-[#7C3AED] to-[#F43F5E] text-white shadow-lg shadow-[#7C3AED]/30 hover:scale-110 active:scale-95 transition-all"
           title={t('createPost')}
         >
           <PlusCircle className="w-6 h-6" />
@@ -54,7 +54,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ openCreatePostModal }) => 
         {/* Wishlist */}
         <button onClick={() => handleTabClick('wishlist')} className={itemClass('wishlist')}>
           <div className="relative">
-            <Heart className={`w-5 h-5 ${activeTab === 'wishlist' ? 'fill-[#7C5CFF]' : ''}`} />
+            <Heart className={`w-5 h-5 ${activeTab === 'wishlist' ? 'fill-[#7C3AED]' : ''}`} />
             {wishlist.length > 0 && (
               <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-0.5 rounded-full bg-[#FF5D8F] text-white text-[9px] font-bold flex items-center justify-center leading-none">
                 {wishlist.length > 9 ? '9+' : wishlist.length}

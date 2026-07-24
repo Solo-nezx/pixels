@@ -39,7 +39,7 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-primary)] transition-colors duration-200 antialiased selection:bg-[#7C5CFF]/30 selection:text-white">
+    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text-primary)] transition-colors duration-200 antialiased selection:bg-[#7C3AED]/30 selection:text-white">
       
       {/* Top Header */}
       <Header />

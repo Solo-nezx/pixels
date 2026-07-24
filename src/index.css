@@ -11,38 +11,43 @@
 --------------------------------------------------------------------------- */
 
 :root {
-  --color-bg: #0E0F12;
-  --color-card: #17181C;
-  --color-elevated: #1E2027;
-  --color-primary: #7C5CFF;
-  --color-primary-hover: #6D4CFF;
-  --color-secondary: #2DD4BF;
-  --color-text-primary: #F5F5F7;
-  --color-text-secondary: #9A9AA5;
-  --color-border: #262830;
-  --color-accent-pink: #FF5D8F;
+  /* Gaming palette — neon purple + rose on deep indigo (no pure black). */
+  --color-bg: #0C0B1A;
+  --color-card: #17152B;
+  --color-elevated: #211D3A;
+  --color-primary: #7C3AED;
+  --color-primary-hover: #6D28D9;
+  --color-secondary: #F43F5E;
+  --color-text-primary: #ECEAF6;
+  --color-text-secondary: #9A93B8;
+  --color-border: #2A2544;
+  --color-accent-pink: #F43F5E;
+
+  --radius: 16px;
 
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Sora', 'Inter', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
 
-  --shadow-soft: 0 1px 2px rgba(0,0,0,.28), 0 8px 24px -12px rgba(0,0,0,.55);
-  --shadow-pop: 0 12px 40px -12px rgba(124,92,255,.45);
+  --shadow-soft: 0 1px 2px rgba(0,0,0,.30), 0 10px 30px -14px rgba(0,0,0,.6);
+  --shadow-pop: 0 14px 44px -12px rgba(124,58,237,.5);
+  --glow-primary: 0 0 24px -4px rgba(124,58,237,.55);
+  --glow-accent: 0 0 24px -4px rgba(244,63,94,.5);
 
   --ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-primary);
 }
 
 html.light {
-  --color-bg: #F7F7FA;
+  --color-bg: #F6F5FC;
   --color-card: #FFFFFF;
   --color-elevated: #FFFFFF;
-  --color-primary: #6D4CFF;
-  --color-primary-hover: #5B3AF0;
-  --color-secondary: #0FA88F;
-  --color-text-primary: #15161A;
-  --color-text-secondary: #6B6B76;
-  --color-border: #E7E7EB;
-  --shadow-soft: 0 1px 2px rgba(16,17,26,.06), 0 10px 30px -18px rgba(16,17,26,.25);
+  --color-primary: #7C3AED;
+  --color-primary-hover: #6D28D9;
+  --color-secondary: #E11D48;
+  --color-text-primary: #17132A;
+  --color-text-secondary: #6B6480;
+  --color-border: #E7E3F2;
+  --shadow-soft: 0 1px 2px rgba(23,19,42,.06), 0 12px 32px -18px rgba(23,19,42,.28);
 }
 
 /* Arabic gets its own font stack for correct, warm letterforms. */
@@ -63,7 +68,7 @@ html, body {
   text-rendering: optimizeLegibility;
 }
 
-/* Subtle two-point aurora wash so large flat areas don't read as "template". */
+/* Ambient gaming aurora — purple + rose glow blobs so flat areas feel alive. */
 body::before {
   content: "";
   position: fixed;
@@ -71,12 +76,33 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(60rem 60rem at 12% -10%, color-mix(in srgb, var(--color-primary) 12%, transparent), transparent 60%),
-    radial-gradient(50rem 50rem at 105% 8%, color-mix(in srgb, var(--color-secondary) 9%, transparent), transparent 55%);
+    radial-gradient(55rem 55rem at 8% -12%, color-mix(in srgb, var(--color-primary) 20%, transparent), transparent 58%),
+    radial-gradient(48rem 48rem at 108% 6%, color-mix(in srgb, var(--color-secondary) 15%, transparent), transparent 55%),
+    radial-gradient(40rem 40rem at 50% 118%, color-mix(in srgb, var(--color-primary) 12%, transparent), transparent 60%);
 }
 
-h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.01em; }
+h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.015em; }
 .font-mono { font-family: var(--font-mono); }
+
+/* Glassmorphism surface — frosted, hairline-bordered panel. */
+.glass {
+  background: color-mix(in srgb, var(--color-card) 62%, transparent);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border: 1px solid color-mix(in srgb, #ffffff 8%, transparent);
+}
+
+/* Accent glow helpers (skill: glow behind primary/CTA elements). */
+.glow-primary { box-shadow: var(--glow-primary); }
+.glow-accent { box-shadow: var(--glow-accent); }
+
+/* Gradient wordmark / highlight text. */
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 
 /* Hide scrollbars for clean horizontal carousels */
 .no-scrollbar::-webkit-scrollbar { display: none; }

@@ -1,44 +1,17 @@
-import { config, isDiscordConfigured, isSteamConfigured, workerEndpoint } from '../lib/config';
+import { config, isSteamConfigured, workerEndpoint } from '../lib/config';
 import { DiscordAuthResult, Game, SteamGame } from '../types';
 
 /**
- * Discord sign-in via the Cloudflare Worker.
- *
- * Flow:
- *  1. Open a popup to Discord's OAuth authorize screen.
- *  2. Discord redirects the popup to the Worker's callback (which holds the
- *     client secret) — the Worker exchanges the code, reads the linked Steam
- *     account, pulls the player's games, and posts the result back here via
- *     window.postMessage.
- *  3. We resolve with that result. No tokens/PII ever touch a URL we read.
+ * Steam sign-in via the built-in Netlify Function (steam-auth), which handles
+ * the OpenID handshake server-side and posts the profile + library back.
  */
-
-const DISCORD_SCOPES = ['identify', 'email', 'connections'];
-
-function randomState(): string {
-  const arr = new Uint8Array(16);
-  crypto.getRandomValues(arr);
-  return Array.from(arr, (b) => b.toString(16).padStart(2, '0')).join('');
-}
-
-function buildAuthorizeUrl(state: string): string {
-  const redirectUri = workerEndpoint('/auth/discord/callback');
-  const params = new URLSearchParams({
-    client_id: config.discordClientId,
-    redirect_uri: redirectUri,
-    response_type: 'code',
-    scope: DISCORD_SCOPES.join(' '),
-    state,
-    prompt: 'consent',
-  });
-  return `https://discord.com/oauth2/authorize?${params.toString()}`;
-}
 
 /**
- * Opens a centered popup to `authUrl` and resolves with the payload the Worker
- * posts back under the given message `source`. Shared by Discord + Steam.
+ * Opens a centered popup to `authUrl` and resolves with the payload posted back
+ * (via window.postMessage) under the given message `source`. Only messages from
+ * `expectedOrigin` are trusted.
  */
-function runPopupAuth(authUrl: string, source: string): Promise<DiscordAuthResult> {
+function runPopupAuth(authUrl: string, source: string, expectedOrigin: string): Promise<DiscordAuthResult> {
   return new Promise((resolve, reject) => {
     const width = 500;
     const height = 750;
@@ -52,7 +25,6 @@ function runPopupAuth(authUrl: string, source: string): Promise<DiscordAuthResul
     }
 
     let settled = false;
-    const workerOrigin = new URL(config.workerUrl).origin;
 
     const cleanup = () => {
       window.removeEventListener('message', onMessage);
@@ -60,8 +32,8 @@ function runPopupAuth(authUrl: string, source: string): Promise<DiscordAuthResul
     };
 
     const onMessage = (event: MessageEvent) => {
-      // Only trust messages coming from our Worker origin.
-      if (event.origin !== workerOrigin) return;
+      // Only trust messages from our own origin (the Netlify Function).
+      if (event.origin !== expectedOrigin) return;
       const data = event.data;
       if (!data || data.source !== source) return;
 
@@ -83,19 +55,15 @@ function runPopupAuth(authUrl: string, source: string): Promise<DiscordAuthResul
   });
 }
 
-export function loginWithDiscord(): Promise<DiscordAuthResult> {
-  if (!isDiscordConfigured()) return Promise.reject(new Error('discord_not_configured'));
-  return runPopupAuth(buildAuthorizeUrl(randomState()), 'pixels-discord-auth');
-}
-
 /**
- * Direct Steam sign-in via Steam OpenID (through the Worker). Needs only the
- * Worker URL — the OpenID handshake requires no client secret. The Worker
- * verifies the assertion and returns the profile + Steam library.
+ * Sign in with Steam via OpenID. The Netlify Function verifies the assertion
+ * server-side and returns the profile + Steam library (needs STEAM_API_KEY in
+ * the Netlify environment).
  */
 export function loginWithSteam(): Promise<DiscordAuthResult> {
   if (!isSteamConfigured()) return Promise.reject(new Error('steam_not_configured'));
-  return runPopupAuth(workerEndpoint('/auth/steam/login'), 'pixels-steam-auth');
+  const origin = window.location.origin;
+  return runPopupAuth(`${origin}/.netlify/functions/steam-auth`, 'pixels-steam-auth', origin);
 }
 
 /** Convert a Steam-imported game into the app's Game shape. */

@@ -1,8 +1,43 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // --- User profiles ------------------------------------------------------
+    // Public to read; only the owner can create/update their own document.
+    match /users/{userId} {
+      allow read: if true;
+      allow create, update: if isSignedIn() && request.auth.uid == userId;
+      allow delete: if false;
+
+      // A user's logged games live under their own document.
+      match /gameLogs/{gameId} {
+        allow read: if true;
+        allow write: if isSignedIn() && request.auth.uid == userId;
+      }
+    }
+
+    // --- Social feed --------------------------------------------------------
+    // Public read. Signed-in users may create posts authored by themselves and
+    // may update reaction fields (likes / reposts / comments) on any post.
+    // Only the original author may delete their post.
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn() && resource.data.authorId == request.auth.uid;
+    }
+
+    // --- Marketplace --------------------------------------------------------
+    // Public read. Signed-in users may create listings they own; only the
+    // seller may update or delete their listing.
+    match /listings/{listingId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
     }
   }
 }

@@ -103,7 +103,7 @@ export const ProfileScreen: React.FC = () => {
                 className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-[var(--color-card)] shadow-xl bg-[var(--color-card)]"
               />
               {targetUser.verified && (
-                <span className="absolute bottom-1 right-1 bg-[#7C5CFF] text-white p-1 rounded-full shadow-md">
+                <span className="absolute bottom-1 right-1 bg-[#7C3AED] text-white p-1 rounded-full shadow-md">
                   <ShieldCheck className="w-3.5 h-3.5" />
                 </span>
               )}
@@ -115,15 +115,15 @@ export const ProfileScreen: React.FC = () => {
                 auth.isLoggedIn ? (
                   <button
                     onClick={() => setIsEditModalOpen(true)}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-xs font-bold text-[var(--color-text-primary)] hover:border-[#7C5CFF] transition-all shadow-sm"
+                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-xs font-bold text-[var(--color-text-primary)] hover:border-[#7C3AED] transition-all shadow-sm"
                   >
-                    <Edit3 className="w-3.5 h-3.5 text-[#7C5CFF]" />
+                    <Edit3 className="w-3.5 h-3.5 text-[#7C3AED]" />
                     <span>{t('editProfile')}</span>
                   </button>
                 ) : (
                   <button
                     onClick={() => openGuestModal()}
-                    className="px-4 py-1.5 rounded-xl bg-[#7C5CFF] text-white text-xs font-bold hover:bg-[#6D4CFF] transition-all"
+                    className="px-4 py-1.5 rounded-xl bg-[#7C3AED] text-white text-xs font-bold hover:bg-[#6D28D9] transition-all"
                   >
                     {t('login')}
                   </button>
@@ -134,7 +134,7 @@ export const ProfileScreen: React.FC = () => {
                   className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold transition-all shadow-md ${
                     isFollowing
                       ? 'bg-[var(--color-bg)] text-[var(--color-text-primary)] border border-[var(--color-border)]'
-                      : 'bg-[#7C5CFF] text-white hover:bg-[#6D4CFF]'
+                      : 'bg-[#7C3AED] text-white hover:bg-[#6D28D9]'
                   }`}
                 >
                   {isFollowing ? (
@@ -158,7 +158,7 @@ export const ProfileScreen: React.FC = () => {
           <div className="mt-2 mb-4">
             <h1 className="text-lg font-extrabold text-[var(--color-text-primary)] flex items-center gap-1">
               <span>{targetUser.name}</span>
-              {targetUser.verified && <ShieldCheck className="w-4 h-4 text-[#7C5CFF]" />}
+              {targetUser.verified && <ShieldCheck className="w-4 h-4 text-[#7C3AED]" />}
             </h1>
             <p className="text-xs text-[var(--color-text-secondary)] mb-2">
               @{targetUser.username}
@@ -205,7 +205,7 @@ export const ProfileScreen: React.FC = () => {
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 py-3 border-t border-[var(--color-border)] text-center">
               <div className="p-2 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)]">
-                <span className="block text-sm font-black text-[#7C5CFF]">{targetUser.followersCount}</span>
+                <span className="block text-sm font-black text-[#7C3AED]">{targetUser.followersCount}</span>
                 <span className="text-[10px] font-semibold text-[var(--color-text-secondary)]">{t('followers')}</span>
               </div>
 
@@ -220,7 +220,7 @@ export const ProfileScreen: React.FC = () => {
               </div>
 
               <div className="p-2 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)]">
-                <span className="block text-sm font-black text-[#2DD4BF]">{totalHours}h</span>
+                <span className="block text-sm font-black text-[#F43F5E]">{totalHours}h</span>
                 <span className="text-[10px] font-semibold text-[var(--color-text-secondary)]">{t('hoursPlayed')}</span>
               </div>
 
@@ -253,7 +253,7 @@ export const ProfileScreen: React.FC = () => {
               onChange={e => setIsPrivacyPrivate(e.target.checked)}
               className="sr-only peer"
             />
-            <div className="w-9 h-5 bg-[var(--color-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#7C5CFF]"></div>
+            <div className="w-9 h-5 bg-[var(--color-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#7C3AED]"></div>
           </label>
         </div>
       )}
@@ -271,7 +271,7 @@ export const ProfileScreen: React.FC = () => {
       <section className="p-4 border-b border-[var(--color-border)]">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Gamepad2 className="w-4 h-4 text-[#7C5CFF]" />
+            <Gamepad2 className="w-4 h-4 text-[#7C3AED]" />
             <h3 className="text-sm font-extrabold uppercase tracking-wider text-[var(--color-text-primary)]">
               {t('gamesSection')} ({loggedGamesWithData.length})
             </h3>
@@ -280,7 +280,7 @@ export const ProfileScreen: React.FC = () => {
           {isSelf && (
             <button
               onClick={() => setSelectedGameForDetail(mockGames[0])}
-              className="flex items-center gap-1 text-xs font-bold text-[#7C5CFF] hover:underline"
+              className="flex items-center gap-1 text-xs font-bold text-[#7C3AED] hover:underline"
             >
               <PlusCircle className="w-3.5 h-3.5" />
               <span>{t('addGameToLog')}</span>
@@ -294,7 +294,7 @@ export const ProfileScreen: React.FC = () => {
               <div
                 key={game.id}
                 onClick={() => setSelectedGameForDetail(game)}
-                className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-[var(--color-border)] hover:border-[#7C5CFF] shadow-md hover:shadow-xl hover:shadow-[#7C5CFF]/20 cursor-pointer transition-all duration-300"
+                className="group relative aspect-[3/4] rounded-xl overflow-hidden border border-[var(--color-border)] hover:border-[#7C3AED] shadow-md hover:shadow-xl hover:shadow-[#7C3AED]/20 cursor-pointer transition-all duration-300"
               >
                 {/* Poster Cover */}
                 <img
@@ -316,7 +316,7 @@ export const ProfileScreen: React.FC = () => {
                 {/* Status & Hours Overlay on hover */}
                 <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/95 via-black/70 to-transparent opacity-90 group-hover:opacity-100 transition-opacity">
                   <p className="text-[11px] font-bold text-white truncate">{game.title}</p>
-                  <p className="text-[9px] text-[#2DD4BF] font-semibold">{log.hoursPlayed}h played</p>
+                  <p className="text-[9px] text-[#F43F5E] font-semibold">{log.hoursPlayed}h played</p>
                 </div>
               </div>
             ))}
@@ -340,7 +340,7 @@ export const ProfileScreen: React.FC = () => {
           {isSelf && wishlistGamesData.length > 0 && (
             <button
               onClick={() => setActiveTab('wishlist')}
-              className="text-xs font-bold text-[#7C5CFF] hover:underline"
+              className="text-xs font-bold text-[#7C3AED] hover:underline"
             >
               {t('viewAll')}
             </button>

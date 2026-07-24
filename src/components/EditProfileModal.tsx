@@ -79,7 +79,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) =
               required
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF]"
+              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
             />
           </div>
 
@@ -93,7 +93,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) =
               required
               value={username}
               onChange={e => setUsername(e.target.value)}
-              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF]"
+              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
             />
           </div>
 
@@ -106,7 +106,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) =
               rows={2}
               value={bio}
               onChange={e => setBio(e.target.value)}
-              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF]"
+              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
             />
           </div>
 
@@ -120,7 +120,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) =
                 type="url"
                 value={avatar}
                 onChange={e => setAvatar(e.target.value)}
-                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF]"
+                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
               />
             </div>
             <div>
@@ -131,7 +131,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) =
                 type="url"
                 value={banner}
                 onChange={e => setBanner(e.target.value)}
-                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF]"
+                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
               />
             </div>
           </div>
@@ -184,7 +184,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) =
               <button
                 type="button"
                 onClick={handleAddGame}
-                className="w-full py-1.5 bg-[#7C5CFF]/10 text-[#7C5CFF] font-bold rounded-lg border border-[#7C5CFF]/30 hover:bg-[#7C5CFF]/20 transition-colors flex items-center justify-center gap-1"
+                className="w-full py-1.5 bg-[#7C3AED]/10 text-[#7C3AED] font-bold rounded-lg border border-[#7C3AED]/30 hover:bg-[#7C3AED]/20 transition-colors flex items-center justify-center gap-1"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add / Update Game</span>
@@ -228,7 +228,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({ onClose }) =
 
           <button
             type="submit"
-            className="w-full py-3 bg-[#7C5CFF] text-white font-bold rounded-xl hover:bg-[#6D4CFF] shadow-lg shadow-[#7C5CFF]/30 transition-all text-xs flex items-center justify-center gap-1.5"
+            className="w-full py-3 bg-[#7C3AED] text-white font-bold rounded-xl hover:bg-[#6D28D9] shadow-lg shadow-[#7C3AED]/30 transition-all text-xs flex items-center justify-center gap-1.5"
           >
             <Save className="w-4 h-4" />
             <span>{t('saveChanges')}</span>

@@ -28,12 +28,12 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
     }`}>
       
       {/* Pixel Icon animation */}
-      <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#7C5CFF] to-[#2DD4BF] p-[3px] flex items-center justify-center shadow-2xl shadow-[#7C5CFF]/40 mb-4 animate-bounce">
+      <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#7C3AED] to-[#F43F5E] p-[3px] flex items-center justify-center shadow-2xl shadow-[#7C3AED]/40 mb-4 animate-bounce">
         <div className="w-full h-full bg-[#0E0F12] rounded-[13px] flex items-center justify-center">
           <div className="grid grid-cols-2 gap-1 w-7 h-7">
-            <div className="bg-[#7C5CFF] rounded-sm animate-pulse"></div>
-            <div className="bg-[#2DD4BF] rounded-sm"></div>
-            <div className="bg-[#2DD4BF] rounded-sm"></div>
+            <div className="bg-[#7C3AED] rounded-sm animate-pulse"></div>
+            <div className="bg-[#F43F5E] rounded-sm"></div>
+            <div className="bg-[#F43F5E] rounded-sm"></div>
             <div className="bg-[#FF5D8F] rounded-sm animate-pulse"></div>
           </div>
         </div>
@@ -44,7 +44,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
         <span className="font-mono font-extrabold text-3xl tracking-tight text-white">
           Pixels
         </span>
-        <span className="w-2 h-2 rounded-sm bg-[#7C5CFF] animate-ping"></span>
+        <span className="w-2 h-2 rounded-sm bg-[#7C3AED] animate-ping"></span>
       </div>
 
       <p className="text-xs text-[#9A9AA5] font-medium tracking-widest uppercase">

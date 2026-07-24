@@ -10,6 +10,13 @@ interface HomeFeedProps {
   openCreatePostModal: () => void;
 }
 
+/** Compact player-count formatting: 12345 -> "12.3K", 1200000 -> "1.2M". */
+function formatPlayers(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(n >= 10_000 ? 0 : 1)}K`;
+  return String(n);
+}
+
 const TrendingGameCardItem: React.FC<{
   game: Game;
   onSelect: (game: Game) => void;
@@ -27,7 +34,7 @@ const TrendingGameCardItem: React.FC<{
       className="flex-shrink-0 w-28 group cursor-pointer select-none touch-manipulation"
       title={isAr ? 'اضغط مطولاً للمعاينة السريعة' : 'Hold for quick preview'}
     >
-      <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-1.5 border border-[var(--color-border)] group-hover:border-[#7C5CFF] shadow-sm group-hover:shadow-lg group-hover:shadow-[#7C5CFF]/20 transition-all">
+      <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-1.5 border border-[var(--color-border)] group-hover:border-[#7C3AED] shadow-sm group-hover:shadow-lg group-hover:shadow-[#7C3AED]/20 transition-all">
         <img
           src={game.coverUrl}
           alt={game.title}
@@ -37,22 +44,39 @@ const TrendingGameCardItem: React.FC<{
           }}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-md text-[10px] font-bold text-amber-400 flex items-center gap-0.5">
-          <Star className="w-2.5 h-2.5 fill-amber-400" />
-          <span>{game.averageRating}</span>
-        </div>
+        {game.averageRating > 0 && (
+          <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-md text-[10px] font-bold text-amber-400 flex items-center gap-0.5">
+            <Star className="w-2.5 h-2.5 fill-amber-400" />
+            <span>{game.averageRating}</span>
+          </div>
+        )}
+
+        {/* Live Steam player count (real "currently playing") */}
+        {typeof game.playerCount === 'number' && game.playerCount > 0 && (
+          <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-emerald-600/90 backdrop-blur-md text-[9px] font-bold text-white flex items-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            <span>{formatPlayers(game.playerCount)}</span>
+          </div>
+        )}
 
         {/* Quick Peek Hint Badge */}
         <div className="absolute bottom-1.5 left-1.5 p-1 rounded-md bg-black/75 backdrop-blur-md text-[9px] text-white opacity-80 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 border border-white/10">
-          <Eye className="w-2.5 h-2.5 text-[#7C5CFF]" />
+          <Eye className="w-2.5 h-2.5 text-[#7C3AED]" />
         </div>
       </div>
-      <h4 className="text-xs font-semibold text-[var(--color-text-primary)] truncate group-hover:text-[#7C5CFF] transition-colors">
+      <h4 className="text-xs font-semibold text-[var(--color-text-primary)] truncate group-hover:text-[#7C3AED] transition-colors">
         {game.title}
       </h4>
-      <p className="text-[10px] text-[var(--color-text-secondary)] truncate">
-        {game.developer}
-      </p>
+      {typeof game.playerCount === 'number' && game.playerCount > 0 ? (
+        <p className="text-[10px] font-semibold text-emerald-500 truncate flex items-center gap-1">
+          <Users className="w-2.5 h-2.5" />
+          {formatPlayers(game.playerCount)} {isAr ? 'يلعبون الآن' : 'playing'}
+        </p>
+      ) : (
+        <p className="text-[10px] text-[var(--color-text-secondary)] truncate">
+          {game.developer}
+        </p>
+      )}
     </div>
   );
 };
@@ -64,55 +88,61 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ openCreatePostModal }) => {
 
   const isAr = language === 'ar';
 
+  // The Friends tab is only available to signed-in users; guests always see Trends.
+  const isLoggedIn = !!(auth.isLoggedIn && auth.user);
+  const effectiveTab = isLoggedIn ? activeTab : 'trends';
+
   // Filter posts for Friends tab vs Trends tab
   const friendsPosts = posts.filter(p => followingIds.includes(p.author.id) || p.author.id === auth.user?.id);
-  const displayPosts = activeTab === 'trends' ? posts : friendsPosts;
+  const displayPosts = effectiveTab === 'trends' ? posts : friendsPosts;
 
   return (
     <div className="w-full pb-20">
       
-      {/* Top Segmented Tabs: Trends & Friends */}
-      <div className="sticky top-14 z-30 bg-[var(--color-bg)]/90 backdrop-blur-md border-b border-[var(--color-border)] p-2">
-        <div className="grid grid-cols-2 p-1 rounded-xl bg-[var(--color-card)] border border-[var(--color-border)]">
-          
-          <button
-            onClick={() => setActiveTab('trends')}
-            className={`flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${
-              activeTab === 'trends'
-                ? 'bg-[#7C5CFF] text-white shadow-md shadow-[#7C5CFF]/30'
-                : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
-            }`}
-          >
-            <Flame className="w-4 h-4" />
-            <span>{t('tabTrends')}</span>
-          </button>
+      {/* Top Segmented Tabs: Trends & Friends — Friends only shows once signed in */}
+      {isLoggedIn && (
+        <div className="sticky top-14 z-30 bg-[var(--color-bg)]/90 backdrop-blur-md border-b border-[var(--color-border)] p-2">
+          <div className="grid grid-cols-2 p-1 rounded-xl bg-[var(--color-card)] border border-[var(--color-border)]">
 
-          <button
-            onClick={() => setActiveTab('friends')}
-            className={`flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${
-              activeTab === 'friends'
-                ? 'bg-[#7C5CFF] text-white shadow-md shadow-[#7C5CFF]/30'
-                : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>{t('tabFriends')}</span>
-          </button>
+            <button
+              onClick={() => setActiveTab('trends')}
+              className={`flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${
+                activeTab === 'trends'
+                  ? 'bg-[#7C3AED] text-white shadow-md shadow-[#7C3AED]/30'
+                  : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+              }`}
+            >
+              <Flame className="w-4 h-4" />
+              <span>{t('tabTrends')}</span>
+            </button>
 
+            <button
+              onClick={() => setActiveTab('friends')}
+              className={`flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${
+                activeTab === 'friends'
+                  ? 'bg-[#7C3AED] text-white shadow-md shadow-[#7C3AED]/30'
+                  : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>{t('tabFriends')}</span>
+            </button>
+
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Trending Games Horizontal Carousel Widget (Only on Trends Tab) */}
-      {activeTab === 'trends' && (
+      {effectiveTab === 'trends' && (
         <section className="p-4 border-b border-[var(--color-border)] bg-[var(--color-card)]/40">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#2DD4BF]" />
+              <Sparkles className="w-4 h-4 text-[#F43F5E]" />
               <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-primary)]">
                 {t('trendingGames')}
               </h3>
             </div>
-            <span className="text-[11px] text-[#2DD4BF] font-semibold cursor-pointer">
+            <span className="text-[11px] text-[#F43F5E] font-semibold cursor-pointer">
               {t('viewAll')}
             </span>
           </div>
@@ -144,13 +174,13 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ openCreatePostModal }) => {
         />
         <button
           onClick={openCreatePostModal}
-          className="flex-1 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-full px-4 py-2.5 text-xs text-[var(--color-text-secondary)] text-start hover:border-[#7C5CFF] transition-colors"
+          className="flex-1 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-full px-4 py-2.5 text-xs text-[var(--color-text-secondary)] text-start hover:border-[#7C3AED] transition-colors"
         >
           {t('whatsPlaying')}
         </button>
         <button
           onClick={openCreatePostModal}
-          className="p-2 rounded-full bg-[#7C5CFF]/10 text-[#7C5CFF] hover:bg-[#7C5CFF]/20 transition-colors"
+          className="p-2 rounded-full bg-[#7C3AED]/10 text-[#7C3AED] hover:bg-[#7C3AED]/20 transition-colors"
         >
           <PlusCircle className="w-5 h-5" />
         </button>
@@ -165,8 +195,8 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ openCreatePostModal }) => {
         ) : (
           <div className="p-8 text-center text-xs text-[var(--color-text-secondary)]">
             <p className="mb-2">{t('noPostsYet')}</p>
-            {activeTab === 'friends' && (
-              <p className="text-[#7C5CFF] font-medium">Follow other gamers from the Search tab to populate your Friends feed!</p>
+            {effectiveTab === 'friends' && (
+              <p className="text-[#7C3AED] font-medium">Follow other gamers from the Search tab to populate your Friends feed!</p>
             )}
           </div>
         )}

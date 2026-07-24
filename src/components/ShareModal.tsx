@@ -123,7 +123,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-[var(--color-border)]">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-[#7C5CFF]/10 text-[#7C5CFF]">
+            <div className="p-2 rounded-xl bg-[#7C3AED]/10 text-[#7C3AED]">
               <Share2 className="w-5 h-5" />
             </div>
             <div>
@@ -194,7 +194,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
           {typeof navigator !== 'undefined' && 'share' in navigator && (
             <button
               onClick={handleNativeShare}
-              className="w-full py-2.5 px-4 rounded-xl bg-[#7C5CFF] text-white text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#6D4CFF] transition-all shadow-md shadow-[#7C5CFF]/20"
+              className="w-full py-2.5 px-4 rounded-xl bg-[#7C3AED] text-white text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#6D28D9] transition-all shadow-md shadow-[#7C3AED]/20"
             >
               <ExternalLink className="w-4 h-4" />
               <span>{isAr ? 'مشاركة عبر تطبيقات الجهاز' : 'Share via System Apps'}</span>

@@ -172,7 +172,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => 
             placeholder={t('whatsPlaying')}
             value={content}
             onChange={e => setContent(e.target.value)}
-            className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl p-3 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF]"
+            className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl p-3 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
           />
 
           {/* Media Attachments Preview Section */}
@@ -180,7 +180,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-[11px] font-semibold text-[var(--color-text-secondary)]">
                 <span>{isAr ? `الصور المرفقة (${images.length}/4)` : `Attached Images (${images.length}/4)`}</span>
-                <span className="text-[10px] text-[#2DD4BF] flex items-center gap-1 font-normal">
+                <span className="text-[10px] text-[#F43F5E] flex items-center gap-1 font-normal">
                   <CloudUpload className="w-3 h-3" />
                   Firebase Storage
                 </span>
@@ -189,7 +189,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => 
                 {images.map((img, idx) => (
                   <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border border-[var(--color-border)] group bg-black">
                     <img src={img} alt="attachment" className="w-full h-full object-cover" />
-                    <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[9px] text-[#2DD4BF] flex items-center gap-0.5 font-mono">
+                    <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[9px] text-[#F43F5E] flex items-center gap-0.5 font-mono">
                       <CloudUpload className="w-2.5 h-2.5" />
                       <span>Firebase</span>
                     </div>
@@ -210,7 +210,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-[11px] font-semibold text-[var(--color-text-secondary)]">
                 <span>{isAr ? `مقاطع الفيديو (${videos.length}/4)` : `Attached Videos (${videos.length}/4)`}</span>
-                <span className="text-[10px] text-[#7C5CFF] flex items-center gap-1 font-normal">
+                <span className="text-[10px] text-[#7C3AED] flex items-center gap-1 font-normal">
                   <CloudUpload className="w-3 h-3" />
                   Firebase Storage
                 </span>
@@ -219,7 +219,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => 
                 {videos.map((vid, idx) => (
                   <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border border-[var(--color-border)] bg-black">
                     <video src={vid} controls className="w-full h-full object-cover" />
-                    <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[9px] text-[#7C5CFF] flex items-center gap-0.5 font-mono">
+                    <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[9px] text-[#7C3AED] flex items-center gap-0.5 font-mono">
                       <CloudUpload className="w-2.5 h-2.5" />
                       <span>Firebase</span>
                     </div>
@@ -259,12 +259,12 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => 
                 className={`flex-1 py-2 px-3 rounded-xl border flex items-center justify-center gap-1.5 font-bold transition-all ${
                   images.length >= 4 || videos.length > 0
                     ? 'opacity-50 border-[var(--color-border)] text-gray-500 cursor-not-allowed'
-                    : 'border-[#2DD4BF]/40 bg-[#2DD4BF]/10 text-[#2DD4BF] hover:bg-[#2DD4BF]/20'
+                    : 'border-[#F43F5E]/40 bg-[#F43F5E]/10 text-[#F43F5E] hover:bg-[#F43F5E]/20'
                 }`}
               >
                 <ImageIcon className="w-4 h-4" />
                 <span>{isAr ? 'رفع صور' : 'Upload Images'}</span>
-                {images.length > 0 && <span className="text-[10px] bg-[#2DD4BF] text-black px-1.5 py-0.2 rounded-full font-black">{images.length}</span>}
+                {images.length > 0 && <span className="text-[10px] bg-[#F43F5E] text-black px-1.5 py-0.2 rounded-full font-black">{images.length}</span>}
               </button>
 
               {/* Video Upload Button */}
@@ -283,12 +283,12 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => 
                 className={`flex-1 py-2 px-3 rounded-xl border flex items-center justify-center gap-1.5 font-bold transition-all ${
                   videos.length >= 4 || images.length > 0
                     ? 'opacity-50 border-[var(--color-border)] text-gray-500 cursor-not-allowed'
-                    : 'border-[#7C5CFF]/40 bg-[#7C5CFF]/10 text-[#7C5CFF] hover:bg-[#7C5CFF]/20'
+                    : 'border-[#7C3AED]/40 bg-[#7C3AED]/10 text-[#7C3AED] hover:bg-[#7C3AED]/20'
                 }`}
               >
                 <Video className="w-4 h-4" />
                 <span>{isAr ? 'رفع فيديو' : 'Upload Videos'}</span>
-                {videos.length > 0 && <span className="text-[10px] bg-[#7C5CFF] text-white px-1.5 py-0.2 rounded-full font-black">{videos.length}</span>}
+                {videos.length > 0 && <span className="text-[10px] bg-[#7C3AED] text-white px-1.5 py-0.2 rounded-full font-black">{videos.length}</span>}
               </button>
 
               {/* URL Option Button */}
@@ -310,12 +310,12 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => 
                   placeholder={isAr ? 'أدخل رابط الصورة أو الفيديو...' : 'Paste image or video URL...'}
                   value={urlInput}
                   onChange={e => setUrlInput(e.target.value)}
-                  className="flex-1 bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF]"
+                  className="flex-1 bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg px-2.5 py-1.5 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
                 />
                 <button
                   type="button"
                   onClick={handleAddMediaUrl}
-                  className="px-3 py-1.5 bg-[#7C5CFF] text-white font-bold rounded-lg text-xs hover:bg-[#6D4CFF]"
+                  className="px-3 py-1.5 bg-[#7C3AED] text-white font-bold rounded-lg text-xs hover:bg-[#6D28D9]"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -327,7 +327,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => 
           <div className="p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-border)]">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <Gamepad2 className="w-4 h-4 text-[#7C5CFF]" />
+                <Gamepad2 className="w-4 h-4 text-[#7C3AED]" />
                 <span className="font-semibold text-[var(--color-text-primary)]">
                   {isAr ? 'ربط لعبة بالمنشور' : 'Tag a Game'}
                 </span>
@@ -336,7 +336,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => 
                 type="checkbox"
                 checked={attachGame}
                 onChange={e => setAttachGame(e.target.checked)}
-                className="w-4 h-4 accent-[#7C5CFF]"
+                className="w-4 h-4 accent-[#7C3AED]"
               />
             </div>
 
@@ -375,7 +375,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => 
 
           {/* Upload Progress Indicator */}
           {isUploading && (
-            <div className="p-3 bg-[#7C5CFF]/10 border border-[#7C5CFF]/30 rounded-xl flex items-center gap-2 text-[#7C5CFF] animate-pulse">
+            <div className="p-3 bg-[#7C3AED]/10 border border-[#7C3AED]/30 rounded-xl flex items-center gap-2 text-[#7C3AED] animate-pulse">
               <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
               <div className="text-[11px] font-bold">
                 {isAr ? 'جاري رفع الملفات إلى Firebase Storage...' : 'Uploading files to Firebase Storage...'}
@@ -386,8 +386,8 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ onClose }) => 
           <button
             type="submit"
             disabled={isUploading}
-            className={`w-full py-3 bg-[#7C5CFF] text-white font-bold rounded-xl shadow-lg transition-all text-xs flex items-center justify-center gap-1.5 ${
-              isUploading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-[#6D4CFF] shadow-[#7C5CFF]/30'
+            className={`w-full py-3 bg-[#7C3AED] text-white font-bold rounded-xl shadow-lg transition-all text-xs flex items-center justify-center gap-1.5 ${
+              isUploading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-[#6D28D9] shadow-[#7C3AED]/30'
             }`}
           >
             {isUploading ? (

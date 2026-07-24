@@ -13,10 +13,28 @@ import {
   DiscordAuthResult
 } from '../types';
 import { translations } from '../i18n/translations';
-import { mockCurrentUser, mockGames, mockPosts, mockListings, mockUserLogs, mockWishlistGameIds, mockUsers } from '../data/mockData';
+import { mockCurrentUser, mockGames, mockUsers } from '../data/mockData';
 import { auth as firebaseAuth, firebaseSignOut, onAuthStateChanged, doc, getDoc, setDoc, db } from '../lib/firebase';
 import { fetchTrendingGames } from '../services/rawg';
-import { loginWithDiscord, loginWithSteam, steamGameToGame } from '../services/discordAuth';
+import { fetchSteamTrending } from '../services/steam';
+import { loginWithSteam, steamGameToGame } from '../services/discordAuth';
+import {
+  subscribePosts,
+  subscribeListings,
+  createPost,
+  toggleLikePost as fsToggleLikePost,
+  toggleRepostPost as fsToggleRepostPost,
+  addCommentToPost,
+  createListing,
+  fetchUserData,
+  saveGameLog,
+  removeGameLog,
+  saveGameLogs,
+  setWishlistItem,
+  setFollow,
+  seedIfEmpty,
+  ensureUserArrays,
+} from '../services/socialData';
 
 /** Parse the numeric Steam appId out of a `steam_<id>` game id. */
 function appIdFromGameId(gameId: string): number | null {
@@ -45,7 +63,6 @@ interface AppContextType {
   login: (user?: User) => void;
   logout: () => void;
   continueAsGuest: () => void;
-  loginWithDiscordProvider: () => Promise<void>;
   loginWithSteamProvider: () => Promise<void>;
   isImportingSteam: boolean;
 
@@ -259,35 +276,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('pixels_auth', JSON.stringify(newState));
   };
 
-  // 3b. Discord sign-in (via Cloudflare Worker) + Steam library import
+  // 3b. Steam sign-in (via Cloudflare Worker) + Steam library import
   const [isImportingSteam, setIsImportingSteam] = useState(false);
 
-  const runProviderLogin = async (
-    provider: 'discord' | 'steam',
-    fn: () => Promise<DiscordAuthResult>,
-  ) => {
-    const label = provider === 'discord' ? 'Discord' : 'Steam';
+  const loginWithSteamProvider = async () => {
     let result: DiscordAuthResult;
     try {
       setIsImportingSteam(true);
-      result = await fn();
+      result = await loginWithSteam();
     } catch (e: any) {
       setIsImportingSteam(false);
-      if (e?.message === `${provider}_not_configured`) {
+      if (e?.message === 'steam_not_configured') {
         showToast(language === 'ar'
-          ? `دخول ${label} غير مُهيأ بعد (تحقق من إعدادات البيئة والـ Worker).`
-          : `${label} sign-in is not configured yet (check your .env / Worker).`);
+          ? 'دخول Steam غير مُهيأ بعد (تحقق من إعدادات البيئة والـ Worker).'
+          : 'Steam sign-in is not configured yet (check your .env / Worker).');
       } else if (e?.message === 'popup_blocked') {
         showToast(language === 'ar' ? 'المتصفح منع النافذة المنبثقة.' : 'The popup was blocked by the browser.');
       } else {
-        showToast(language === 'ar' ? `تم إلغاء تسجيل الدخول عبر ${label}.` : `${label} sign-in was cancelled.`);
+        showToast(language === 'ar' ? 'تم إلغاء تسجيل الدخول عبر Steam.' : 'Steam sign-in was cancelled.');
       }
       return;
     }
 
     if (!result.ok || !result.profile) {
       setIsImportingSteam(false);
-      showToast(language === 'ar' ? `فشل تسجيل الدخول عبر ${label}.` : `${label} sign-in failed.`);
+      showToast(language === 'ar' ? 'فشل تسجيل الدخول عبر Steam.' : 'Steam sign-in failed.');
       return;
     }
 
@@ -295,12 +308,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const importedGames = result.games || [];
 
     const providerUser: User = {
-      id: `${provider}_${p.id}`,
+      id: `steam_${p.id}`,
       name: p.username,
       username: p.handle,
       avatar: p.avatar,
       banner: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200',
-      bio: language === 'ar' ? `لاعب على Pixels عبر ${label}` : `Pixels gamer via ${label}`,
+      bio: language === 'ar' ? 'لاعب على Pixels عبر Steam' : 'Pixels gamer via Steam',
       verified: true,
       followersCount: 0,
       followingCount: 0,
@@ -308,7 +321,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       hoursPlayed: importedGames.reduce((a, g) => a + g.hoursPlayed, 0),
       gamesLoggedCount: importedGames.length,
       reviewsWrittenCount: 0,
-      provider,
+      provider: 'steam',
       steamId: p.steamId,
       libraryAppIds: importedGames.map((g) => g.appId),
     };
@@ -322,19 +335,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       showToast(language === 'ar'
         ? `تم جلب ${importedGames.length} لعبة من حساب Steam!`
         : `Imported ${importedGames.length} games from Steam!`);
-    } else if (provider === 'discord' && !p.steamId) {
-      showToast(language === 'ar'
-        ? 'لا يوجد حساب Steam مرتبط بحساب Discord لجلب الألعاب.'
-        : 'No Steam account linked to Discord — no games imported.');
-    } else if (importedGames.length === 0) {
+    } else {
       showToast(language === 'ar'
         ? 'تم تسجيل الدخول. تأكد أن ملف Steam عام لجلب الألعاب.'
         : 'Signed in. Make your Steam profile public to import games.');
     }
   };
-
-  const loginWithDiscordProvider = () => runProviderLogin('discord', loginWithDiscord);
-  const loginWithSteamProvider = () => runProviderLogin('steam', loginWithSteam);
 
   /** Merge Steam-imported games into the catalogue and the user's game log. */
   const importSteamGames = (games: SteamGame[]) => {
@@ -348,23 +354,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return additions.length ? [...prev, ...additions] : prev;
     });
 
+    const newLogs: UserGameLog[] = [];
     setUserGames((prev) => {
       const byId = new Map(prev.map((l) => [l.gameId, l]));
       for (const sg of games) {
         const gameId = `steam_${sg.appId}`;
         if (byId.has(gameId)) continue;
-        byId.set(gameId, {
+        const log: UserGameLog = {
           gameId,
           rating: 0,
           hoursPlayed: sg.hoursPlayed,
           status: sg.recent ? 'playing' : 'completed',
           loggedAt: language === 'ar' ? 'من Steam' : 'from Steam',
-        });
+        };
+        byId.set(gameId, log);
+        newLogs.push(log);
       }
-      const updated = Array.from(byId.values());
-      localStorage.setItem('pixels_user_games', JSON.stringify(updated));
-      return updated;
+      return Array.from(byId.values());
     });
+
+    // Persist to Firestore when the current session is Firebase-authenticated.
+    const uid = firebaseAuth.currentUser?.uid;
+    if (uid && newLogs.length) saveGameLogs(uid, newLogs).catch(() => {});
   };
 
   // 4. Guest Barrier Modal
@@ -399,8 +410,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     let isMounted = true;
     async function loadLiveGames() {
       setLoadingGames(true);
-      // RAWG first (CORS-friendly, real data with a key); falls back to Steam
-      // list and then mock data automatically inside the service.
+      // Steam "most played" first (real live player counts, via the Netlify
+      // Function). Falls back to RAWG, then the bundled mock list.
+      const steamGames = await fetchSteamTrending();
+      if (isMounted && steamGames.length > 0) {
+        setAllGames(steamGames);
+        setLoadingGames(false);
+        return;
+      }
       const liveGames = await fetchTrendingGames(24);
       if (isMounted && liveGames && liveGames.length > 0) {
         setAllGames(liveGames);
@@ -411,83 +428,92 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return () => { isMounted = false; };
   }, []);
 
-  const [userGames, setUserGames] = useState<UserGameLog[]>(() => {
-    const saved = localStorage.getItem('pixels_user_games');
-    return saved ? JSON.parse(saved) : mockUserLogs;
-  });
-
-  const [wishlist, setWishlist] = useState<string[]>(() => {
-    const saved = localStorage.getItem('pixels_wishlist');
-    return saved ? JSON.parse(saved) : mockWishlistGameIds;
-  });
-
+  const [userGames, setUserGames] = useState<UserGameLog[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
+  const [followingIds, setFollowingIds] = useState<string[]>([]);
   const [isPrivacyPrivate, setIsPrivacyPrivate] = useState<boolean>(false);
+
+  // Load the signed-in user's Firestore data (game logs, wishlist, follows).
+  // Clears back to empty for guests / on logout.
+  useEffect(() => {
+    const uid = auth.user && !auth.isGuest ? auth.user.id : null;
+    if (!uid) {
+      setUserGames([]);
+      setWishlist([]);
+      setFollowingIds([]);
+      return;
+    }
+    let active = true;
+    (async () => {
+      await ensureUserArrays(uid);
+      const data = await fetchUserData(uid);
+      if (!active) return;
+      setUserGames(data.gameLogs);
+      setWishlist(data.wishlist);
+      setFollowingIds(data.followingIds);
+    })();
+    return () => { active = false; };
+  }, [auth.user?.id, auth.isGuest]);
 
   const logGame = (gameId: string, rating: number, hours: number, status: GameStatus, reviewText?: string) => {
     requireAuth(() => {
+      const newLog: UserGameLog = {
+        gameId,
+        rating,
+        hoursPlayed: hours,
+        status,
+        loggedAt: language === 'ar' ? 'الآن' : 'Just now',
+        reviewText,
+      };
       setUserGames(prev => {
         const existingIdx = prev.findIndex(g => g.gameId === gameId);
-        const newLog: UserGameLog = {
-          gameId,
-          rating,
-          hoursPlayed: hours,
-          status,
-          loggedAt: language === 'ar' ? 'الآن' : 'Just now',
-          reviewText,
-        };
-        let updated;
         if (existingIdx >= 0) {
-          updated = [...prev];
+          const updated = [...prev];
           updated[existingIdx] = newLog;
-        } else {
-          updated = [newLog, ...prev];
+          return updated;
         }
-        localStorage.setItem('pixels_user_games', JSON.stringify(updated));
-        return updated;
+        return [newLog, ...prev];
       });
+      const uid = auth.user?.id;
+      if (uid) saveGameLog(uid, newLog).catch((e) => console.error('saveGameLog failed:', e));
       showToast(t('successLog'));
     }, t('logThisGame'));
   };
 
   const removeUserGame = (gameId: string) => {
     requireAuth(() => {
-      setUserGames(prev => {
-        const updated = prev.filter(g => g.gameId !== gameId);
-        localStorage.setItem('pixels_user_games', JSON.stringify(updated));
-        return updated;
-      });
+      setUserGames(prev => prev.filter(g => g.gameId !== gameId));
+      const uid = auth.user?.id;
+      if (uid) removeGameLog(uid, gameId).catch((e) => console.error('removeGameLog failed:', e));
     });
   };
 
   const toggleWishlist = (gameId: string) => {
     requireAuth(() => {
-      setWishlist(prev => {
-        let updated;
-        if (prev.includes(gameId)) {
-          updated = prev.filter(id => id !== gameId);
-          showToast(t('removeFromWishlist'));
-        } else {
-          updated = [...prev, gameId];
-          showToast(t('addToWishlist'));
-        }
-        localStorage.setItem('pixels_wishlist', JSON.stringify(updated));
-        return updated;
-      });
+      const willAdd = !wishlist.includes(gameId);
+      setWishlist(prev => (willAdd ? [...prev, gameId] : prev.filter(id => id !== gameId)));
+      showToast(willAdd ? t('addToWishlist') : t('removeFromWishlist'));
+      const uid = auth.user?.id;
+      if (uid) setWishlistItem(uid, gameId, willAdd).catch((e) => console.error('setWishlistItem failed:', e));
     }, t('addToWishlist'));
   };
 
-  // 6. Posts state
-  const [posts, setPosts] = useState<Post[]>(() => {
-    const saved = localStorage.getItem('pixels_posts');
-    return saved ? JSON.parse(saved) : mockPosts;
-  });
+  // 6. Posts state — live from Firestore (re-subscribes when the viewer
+  // changes so per-user like/repost flags stay correct).
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  useEffect(() => {
+    seedIfEmpty();
+    const uid = auth.user && !auth.isGuest ? auth.user.id : null;
+    const unsub = subscribePosts(uid, setPosts);
+    return () => unsub();
+  }, [auth.user?.id, auth.isGuest]);
 
   const addPost = (content: string, game?: Game, rating?: number, imageUrl?: string, images?: string[], videos?: string[]) => {
     requireAuth(() => {
       if (!auth.user) return;
       const finalImages = images && images.length > 0 ? images : (imageUrl ? [imageUrl] : undefined);
-      const newPost: Post = {
-        id: 'post_' + Date.now(),
+      createPost({
         author: auth.user,
         createdAt: language === 'ar' ? 'الآن' : 'Just now',
         content,
@@ -496,126 +522,82 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         imageUrl: finalImages && finalImages.length > 0 ? finalImages[0] : imageUrl,
         images: finalImages,
         videos: videos && videos.length > 0 ? videos : undefined,
-        likesCount: 0,
-        commentsCount: 0,
-        repostsCount: 0,
-        isLiked: false,
-      };
-      setPosts(prev => {
-        const updated = [newPost, ...prev];
-        localStorage.setItem('pixels_posts', JSON.stringify(updated));
-        return updated;
-      });
-      showToast(t('successPost'));
+      })
+        .then(() => showToast(t('successPost')))
+        .catch((e) => {
+          console.error('createPost failed:', e);
+          showToast(language === 'ar' ? 'تعذّر نشر المنشور.' : 'Could not publish post.');
+        });
     }, t('createPost'));
   };
 
   const toggleLikePost = (postId: string) => {
     requireAuth(() => {
-      setPosts(prev => {
-        const updated = prev.map(p => {
-          if (p.id === postId) {
-            const isLiked = !p.isLiked;
-            return {
-              ...p,
-              isLiked,
-              likesCount: isLiked ? p.likesCount + 1 : Math.max(0, p.likesCount - 1),
-            };
-          }
-          return p;
-        });
-        localStorage.setItem('pixels_posts', JSON.stringify(updated));
-        return updated;
-      });
+      const uid = auth.user?.id;
+      if (!uid) return;
+      const target = posts.find(p => p.id === postId);
+      fsToggleLikePost(postId, !!target?.isLiked, uid).catch((e) => console.error('like failed:', e));
     }, t('like'));
   };
 
   const toggleRepost = (postId: string) => {
     requireAuth(() => {
-      setPosts(prev => {
-        const updated = prev.map(p => {
-          if (p.id === postId) {
-            const isReposted = !p.isReposted;
-            return {
-              ...p,
-              isReposted,
-              repostsCount: isReposted ? p.repostsCount + 1 : Math.max(0, p.repostsCount - 1),
-            };
-          }
-          return p;
-        });
-        localStorage.setItem('pixels_posts', JSON.stringify(updated));
-        return updated;
-      });
+      const uid = auth.user?.id;
+      if (!uid) return;
+      const target = posts.find(p => p.id === postId);
+      fsToggleRepostPost(postId, !!target?.isReposted, uid).catch((e) => console.error('repost failed:', e));
     }, t('repost'));
   };
 
   const addComment = (postId: string, commentText: string) => {
     requireAuth(() => {
       if (!auth.user) return;
-      setPosts(prev => {
-        const updated = prev.map(p => {
-          if (p.id === postId) {
-            const newComment = {
-              id: 'c_' + Date.now(),
-              author: auth.user!,
-              createdAt: language === 'ar' ? 'الآن' : 'Just now',
-              content: commentText,
-              likesCount: 0,
-            };
-            const comments = p.comments ? [...p.comments, newComment] : [newComment];
-            return {
-              ...p,
-              commentsCount: p.commentsCount + 1,
-              comments,
-            };
-          }
-          return p;
-        });
-        localStorage.setItem('pixels_posts', JSON.stringify(updated));
-        return updated;
-      });
-      showToast(language === 'ar' ? 'تمت إضافة التعليق!' : 'Comment added!');
+      const newComment = {
+        id: 'c_' + Date.now(),
+        author: auth.user,
+        createdAt: language === 'ar' ? 'الآن' : 'Just now',
+        content: commentText,
+        likesCount: 0,
+      };
+      addCommentToPost(postId, newComment)
+        .then(() => showToast(language === 'ar' ? 'تمت إضافة التعليق!' : 'Comment added!'))
+        .catch((e) => console.error('addComment failed:', e));
     }, t('comment'));
   };
 
-  // 7. Marketplace Listings
-  const [listings, setListings] = useState<MarketplaceListing[]>(() => {
-    const saved = localStorage.getItem('pixels_listings');
-    return saved ? JSON.parse(saved) : mockListings;
-  });
+  // 7. Marketplace Listings — live from Firestore.
+  const [listings, setListings] = useState<MarketplaceListing[]>([]);
+
+  useEffect(() => {
+    const unsub = subscribeListings(setListings);
+    return () => unsub();
+  }, []);
 
   const addListing = (itemData: Omit<MarketplaceListing, 'id' | 'seller' | 'createdAt' | 'status'>) => {
     requireAuth(() => {
       if (!auth.user) return;
-      const newListing: MarketplaceListing = {
+      const newListing: Omit<MarketplaceListing, 'id'> = {
         ...itemData,
-        id: 'lst_' + Date.now(),
         seller: auth.user,
         createdAt: language === 'ar' ? 'الآن' : 'Just now',
         status: 'active',
       };
-      setListings(prev => {
-        const updated = [newListing, ...prev];
-        localStorage.setItem('pixels_listings', JSON.stringify(updated));
-        return updated;
-      });
-      showToast(language === 'ar' ? 'تمت إضافة المنتج بنجاح!' : 'Listing created successfully!');
+      createListing(newListing)
+        .then(() => showToast(language === 'ar' ? 'تمت إضافة المنتج بنجاح!' : 'Listing created successfully!'))
+        .catch((e) => {
+          console.error('createListing failed:', e);
+          showToast(language === 'ar' ? 'تعذّر إضافة المنتج.' : 'Could not create listing.');
+        });
     }, t('createListing'));
   };
 
-  // 8. Follows
-  const [followingIds, setFollowingIds] = useState<string[]>(['usr_2']);
-
+  // 8. Follows — persisted on the user's Firestore doc (loaded above).
   const toggleFollowUser = (userId: string) => {
     requireAuth(() => {
-      setFollowingIds(prev => {
-        if (prev.includes(userId)) {
-          return prev.filter(id => id !== userId);
-        } else {
-          return [...prev, userId];
-        }
-      });
+      const willFollow = !followingIds.includes(userId);
+      setFollowingIds(prev => (willFollow ? [...prev, userId] : prev.filter(id => id !== userId)));
+      const uid = auth.user?.id;
+      if (uid) setFollow(uid, userId, willFollow).catch((e) => console.error('setFollow failed:', e));
     }, t('follow'));
   };
 
@@ -685,7 +667,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         login,
         logout,
         continueAsGuest,
-        loginWithDiscordProvider,
         loginWithSteamProvider,
         isImportingSteam,
         suggestedFriends,

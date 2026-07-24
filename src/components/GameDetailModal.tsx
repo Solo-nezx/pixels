@@ -124,7 +124,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({ game: initialG
               </span>
             ))}
             {game.platforms.map(p => (
-              <span key={p} className="px-2 py-0.5 rounded-md bg-[#7C5CFF]/10 text-[#7C5CFF] text-[10px] font-bold">
+              <span key={p} className="px-2 py-0.5 rounded-md bg-[#7C3AED]/10 text-[#7C3AED] text-[10px] font-bold">
                 {p}
               </span>
             ))}
@@ -139,7 +139,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({ game: initialG
         <div className="p-3 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl flex items-center justify-between gap-2 mb-5">
           <button
             onClick={() => setShowLogForm(!showLogForm)}
-            className="flex-1 py-2.5 px-4 rounded-xl bg-[#7C5CFF] text-white font-bold text-xs hover:bg-[#6D4CFF] shadow-md shadow-[#7C5CFF]/30 transition-all flex items-center justify-center gap-1.5"
+            className="flex-1 py-2.5 px-4 rounded-xl bg-[#7C3AED] text-white font-bold text-xs hover:bg-[#6D28D9] shadow-md shadow-[#7C3AED]/30 transition-all flex items-center justify-center gap-1.5"
           >
             <Gamepad2 className="w-4 h-4" />
             <span>{existingLog ? 'Update Rating / Log' : t('logThisGame')}</span>
@@ -220,13 +220,13 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({ game: initialG
                 placeholder={language === 'ar' ? 'اكتب مراجعتك أو انطباعك عن هذه اللعبة ليراه المتابعون...' : 'Write your review or thoughts on this game for the feed...'}
                 value={reviewText}
                 onChange={e => setReviewText(e.target.value)}
-                className="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-2.5 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF]"
+                className="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-2.5 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-2.5 bg-[#7C5CFF] text-white font-bold rounded-xl hover:bg-[#6D4CFF] transition-colors flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 bg-[#7C3AED] text-white font-bold rounded-xl hover:bg-[#6D28D9] transition-colors flex items-center justify-center gap-1.5"
             >
               <Check className="w-4 h-4" />
               <span>{t('saveChanges')}</span>

@@ -12,3 +12,9 @@ worker/node_modules/
 worker/.wrangler/
 worker/.dev.vars
 .dev.vars
+
+# Local Netlify folder
+.netlify
+
+# Local MCP server config (contains an API key — do not commit)
+.mcp.json

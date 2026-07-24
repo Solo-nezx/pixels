@@ -63,10 +63,10 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
             onError={(e) => {
               e.currentTarget.src = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop&q=80';
             }}
-            className="w-10 h-10 rounded-full object-cover border border-[var(--color-border)] group-hover:border-[#7C5CFF] transition-all"
+            className="w-10 h-10 rounded-full object-cover border border-[var(--color-border)] group-hover:border-[#7C3AED] transition-all"
           />
           {post.author.verified && (
-            <span className="absolute -bottom-1 -right-1 bg-[#7C5CFF] text-white p-0.5 rounded-full">
+            <span className="absolute -bottom-1 -right-1 bg-[#7C3AED] text-white p-0.5 rounded-full">
               <ShieldCheck className="w-2.5 h-2.5" />
             </span>
           )}
@@ -102,7 +102,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
             <div 
               {...gameLongPressProps}
               title={language === 'ar' ? 'اضغط مطولاً للمعاينة السريعة' : 'Hold for quick preview'}
-              className="group flex items-center gap-3 p-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]/70 hover:border-[#7C5CFF]/60 cursor-pointer transition-all mb-3 select-none touch-manipulation relative"
+              className="group flex items-center gap-3 p-2.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]/70 hover:border-[#7C3AED]/60 cursor-pointer transition-all mb-3 select-none touch-manipulation relative"
             >
               <img
                 src={post.game.coverUrl}
@@ -116,7 +116,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-1 mb-0.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded bg-[#7C5CFF]/10 text-[#7C5CFF] uppercase tracking-wider">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded bg-[#7C3AED]/10 text-[#7C3AED] uppercase tracking-wider">
                       Game
                     </span>
                     {post.rating && (
@@ -128,12 +128,12 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
                   </div>
                   
                   {/* Quick Preview Hint Eye */}
-                  <span className="text-[10px] text-[var(--color-text-secondary)] group-hover:text-[#7C5CFF] flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                  <span className="text-[10px] text-[var(--color-text-secondary)] group-hover:text-[#7C3AED] flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
                     <Eye className="w-3 h-3" />
                     <span className="hidden sm:inline">{language === 'ar' ? 'معاينة' : 'Hold Preview'}</span>
                   </span>
                 </div>
-                <h4 className="font-bold text-sm text-[var(--color-text-primary)] truncate group-hover:text-[#7C5CFF] transition-colors">
+                <h4 className="font-bold text-sm text-[var(--color-text-primary)] truncate group-hover:text-[#7C3AED] transition-colors">
                   {post.game.title}
                 </h4>
                 <p className="text-xs text-[var(--color-text-secondary)] truncate">
@@ -244,9 +244,9 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
             {/* Comment */}
             <button
               onClick={() => setShowComments(!showComments)}
-              className="flex items-center gap-1.5 hover:text-[#7C5CFF] transition-colors group"
+              className="flex items-center gap-1.5 hover:text-[#7C3AED] transition-colors group"
             >
-              <div className="p-1.5 rounded-full group-hover:bg-[#7C5CFF]/10">
+              <div className="p-1.5 rounded-full group-hover:bg-[#7C3AED]/10">
                 <MessageSquare className="w-4 h-4" />
               </div>
               <span className="font-medium">{post.commentsCount}</span>
@@ -256,10 +256,10 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
             <button
               onClick={() => toggleRepost(post.id)}
               className={`flex items-center gap-1.5 transition-colors group ${
-                post.isReposted ? 'text-[#2DD4BF]' : 'hover:text-[#2DD4BF]'
+                post.isReposted ? 'text-[#F43F5E]' : 'hover:text-[#F43F5E]'
               }`}
             >
-              <div className="p-1.5 rounded-full group-hover:bg-[#2DD4BF]/10">
+              <div className="p-1.5 rounded-full group-hover:bg-[#F43F5E]/10">
                 <Repeat2 className="w-4 h-4" />
               </div>
               <span className="font-medium">{post.repostsCount}</span>
@@ -282,7 +282,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
             <button
               onClick={handleOpenShare}
               title={language === 'ar' ? 'مشاركة خارجية' : 'External Share'}
-              className="p-1.5 rounded-full hover:bg-[var(--color-border)] hover:text-[#7C5CFF] transition-colors"
+              className="p-1.5 rounded-full hover:bg-[var(--color-border)] hover:text-[#7C3AED] transition-colors"
             >
               <Share2 className="w-4 h-4" />
             </button>
@@ -299,11 +299,11 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
                   placeholder={t('comment') + '...'}
                   value={newCommentText}
                   onChange={e => setNewCommentText(e.target.value)}
-                  className="flex-1 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-1.5 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF]"
+                  className="flex-1 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-1.5 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
                 />
                 <button
                   type="submit"
-                  className="px-3 py-1.5 bg-[#7C5CFF] text-white rounded-xl text-xs font-semibold hover:bg-[#6D4CFF] transition-colors flex items-center gap-1"
+                  className="px-3 py-1.5 bg-[#7C3AED] text-white rounded-xl text-xs font-semibold hover:bg-[#6D28D9] transition-colors flex items-center gap-1"
                 >
                   <Send className={`w-3 h-3 ${language === 'ar' ? 'scale-x-[-1]' : ''}`} />
                 </button>

@@ -64,7 +64,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
                 type="button"
                 onClick={() => setType('sale')}
                 className={`py-2 rounded-lg font-bold transition-all ${
-                  type === 'sale' ? 'bg-[#7C5CFF] text-white' : 'text-[var(--color-text-secondary)]'
+                  type === 'sale' ? 'bg-[#7C3AED] text-white' : 'text-[var(--color-text-secondary)]'
                 }`}
               >
                 {t('filterSale')}
@@ -73,7 +73,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
                 type="button"
                 onClick={() => setType('trade')}
                 className={`py-2 rounded-lg font-bold transition-all ${
-                  type === 'trade' ? 'bg-[#2DD4BF] text-slate-950' : 'text-[var(--color-text-secondary)]'
+                  type === 'trade' ? 'bg-[#F43F5E] text-slate-950' : 'text-[var(--color-text-secondary)]'
                 }`}
               >
                 {t('filterTrade')}
@@ -90,7 +90,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
               placeholder="e.g. DualSense Edge Controller"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF]"
+              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
             />
           </div>
 
@@ -101,7 +101,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
               <select
                 value={category}
                 onChange={e => setCategory(e.target.value as any)}
-                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF]"
+                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
               >
                 <option value="Hardware">{t('categoryHardware')}</option>
                 <option value="Games">{t('categoryGames')}</option>
@@ -116,7 +116,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
               <select
                 value={condition}
                 onChange={e => setCondition(e.target.value as any)}
-                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF]"
+                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
               >
                 <option value="New">{t('conditionNew')}</option>
                 <option value="Like New">{t('conditionLikeNew')}</option>
@@ -136,7 +136,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
                 placeholder="150"
                 value={price}
                 onChange={e => setPrice(e.target.value ? Number(e.target.value) : '')}
-                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF]"
+                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
               />
             </div>
           ) : (
@@ -147,7 +147,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
                 placeholder="e.g. Nintendo Switch OLED or PS5 Digital"
                 value={tradeOffersFor}
                 onChange={e => setTradeOffersFor(e.target.value)}
-                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#2DD4BF]"
+                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#F43F5E]"
               />
             </div>
           )}
@@ -160,7 +160,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
               placeholder="https://..."
               value={imageUrl}
               onChange={e => setImageUrl(e.target.value)}
-              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF]"
+              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
             />
           </div>
 
@@ -173,13 +173,13 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
               placeholder="Item condition details, included accessories, or shipping info..."
               value={description}
               onChange={e => setDescription(e.target.value)}
-              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF]"
+              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 bg-[#7C5CFF] text-white font-bold rounded-xl hover:bg-[#6D4CFF] shadow-lg shadow-[#7C5CFF]/30 transition-all text-xs flex items-center justify-center gap-1.5"
+            className="w-full py-3 bg-[#7C3AED] text-white font-bold rounded-xl hover:bg-[#6D28D9] shadow-lg shadow-[#7C3AED]/30 transition-all text-xs flex items-center justify-center gap-1.5"
           >
             <Plus className="w-4 h-4" />
             <span>{t('createListing')}</span>

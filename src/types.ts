@@ -94,6 +94,10 @@ export interface Game {
   ratingCount: number;
   summary: string;
   metascore?: number;
+  /** Current concurrent players (from Steam most-played chart), when available. */
+  playerCount?: number;
+  /** 24h peak concurrent players (from Steam), when available. */
+  peakPlayers?: number;
 }
 
 export interface UserGameLog {

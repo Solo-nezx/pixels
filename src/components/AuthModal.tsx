@@ -16,7 +16,7 @@ import {
 import { X, Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
 import { Turnstile } from './Turnstile';
 import { verifyTurnstile } from '../services/discordAuth';
-import { isTurnstileConfigured, isDiscordConfigured, isSteamConfigured } from '../lib/config';
+import { isTurnstileConfigured, isSteamConfigured } from '../lib/config';
 
 interface AuthModalProps {
   onSuccess: () => void;
@@ -31,7 +31,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
     openOnboarding,
     language,
     theme,
-    loginWithDiscordProvider,
     loginWithSteamProvider,
     isImportingSteam,
   } = useApp();
@@ -58,18 +57,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
       setError(language === 'ar' ? 'فشل فحص الحماية. حاول مجدداً.' : 'Security check failed. Please try again.');
     }
     return ok;
-  };
-
-  const handleDiscordLogin = async () => {
-    setError(null);
-    if (!(await ensureHuman())) return;
-    try {
-      setLoading(true);
-      await loginWithDiscordProvider();
-      onSuccess();
-    } finally {
-      setLoading(false);
-    }
   };
 
   const handleSteamLogin = async () => {
@@ -243,7 +230,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
 
         {/* Branding & Reason */}
         <div className="text-center mb-5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#7C5CFF] to-[#2DD4BF] p-[2px] mx-auto mb-2 shadow-lg shadow-[#7C5CFF]/30">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#7C3AED] to-[#F43F5E] p-[2px] mx-auto mb-2 shadow-lg shadow-[#7C3AED]/30">
             <div className="w-full h-full bg-[#0E0F12] rounded-[14px] flex items-center justify-center font-mono font-bold text-white text-lg">
               PX
             </div>
@@ -265,7 +252,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
             type="button"
             onClick={() => { setIsSignUp(false); setError(null); }}
             className={`py-2 text-xs font-bold rounded-lg transition-all ${
-              !isSignUp ? 'bg-[#7C5CFF] text-white' : 'text-[var(--color-text-secondary)]'
+              !isSignUp ? 'bg-[#7C3AED] text-white' : 'text-[var(--color-text-secondary)]'
             }`}
           >
             {t('login')}
@@ -274,7 +261,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
             type="button"
             onClick={() => { setIsSignUp(true); setError(null); }}
             className={`py-2 text-xs font-bold rounded-lg transition-all ${
-              isSignUp ? 'bg-[#7C5CFF] text-white' : 'text-[var(--color-text-secondary)]'
+              isSignUp ? 'bg-[#7C3AED] text-white' : 'text-[var(--color-text-secondary)]'
             }`}
           >
             {t('signup')}
@@ -295,10 +282,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
             type="button"
             disabled={loading}
             onClick={handleGoogleLogin}
-            className="w-full py-2.5 px-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-xs font-bold text-[var(--color-text-primary)] hover:border-[#7C5CFF] hover:bg-[var(--color-card)] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-2.5 px-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-xs font-bold text-[var(--color-text-primary)] hover:border-[#7C3AED] hover:bg-[var(--color-card)] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loading ? (
-              <Loader2 className="w-4 h-4 animate-spin text-[#7C5CFF]" />
+              <Loader2 className="w-4 h-4 animate-spin text-[#7C3AED]" />
             ) : (
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -309,30 +296,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
             )}
             <span>{t('loginWithGoogle')}</span>
           </button>
-
-          {/* Discord OAuth (imports the linked Steam library on success) */}
-          <button
-            type="button"
-            disabled={loading}
-            onClick={handleDiscordLogin}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#5865F2] text-xs font-bold text-white hover:bg-[#4752c4] transition-all flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg shadow-[#5865F2]/25"
-          >
-            {loading || isImportingSteam ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-                <path d="M20.317 4.369A19.79 19.79 0 0 0 16.558 3.2a.074.074 0 0 0-.079.037c-.34.607-.719 1.4-.984 2.02a18.27 18.27 0 0 0-5.487 0 12.6 12.6 0 0 0-1-2.02.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C1.533 7.51.955 10.58 1.24 13.607a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-3.5-.838-6.544-2.906-9.212a.061.061 0 0 0-.031-.028zM8.02 11.77c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.094 2.157 2.418 0 1.334-.955 2.419-2.157 2.419zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.418 2.157-2.418 1.21 0 2.176 1.094 2.157 2.418 0 1.334-.946 2.419-2.157 2.419z"/>
-              </svg>
-            )}
-            <span>{t('loginWithDiscord')}</span>
-          </button>
-          {isDiscordConfigured() && (
-            <p className="text-[10px] text-[var(--color-text-secondary)] text-center leading-relaxed px-2">
-              {language === 'ar'
-                ? 'سنجلب ألعابك من حساب Steam المرتبط بحساب Discord ونقترح لك أصدقاء يلعبون نفس الألعاب.'
-                : 'We import your games from the Steam account linked to Discord and suggest friends who play them.'}
-            </p>
-          )}
 
           {/* Direct Steam sign-in (OpenID) — imports the library straight away */}
           {isSteamConfigured() && (
@@ -380,7 +343,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
                 placeholder={t('displayName')}
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF] disabled:opacity-50"
+                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED] disabled:opacity-50"
               />
             </div>
           )}
@@ -394,7 +357,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
               placeholder={t('emailPlaceholder')}
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl pl-9 pr-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF] disabled:opacity-50"
+              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl pl-9 pr-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED] disabled:opacity-50"
             />
           </div>
 
@@ -407,14 +370,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
               placeholder={t('passwordPlaceholder')}
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl pl-9 pr-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C5CFF] disabled:opacity-50"
+              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl pl-9 pr-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED] disabled:opacity-50"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-[#7C5CFF] text-white font-bold rounded-xl hover:bg-[#6D4CFF] shadow-lg shadow-[#7C5CFF]/30 transition-all text-xs flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-2.5 bg-[#7C3AED] text-white font-bold rounded-xl hover:bg-[#6D28D9] shadow-lg shadow-[#7C3AED]/30 transition-all text-xs flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             <span>{isSignUp ? t('signup') : t('login')}</span>

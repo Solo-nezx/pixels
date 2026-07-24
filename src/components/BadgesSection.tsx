@@ -87,11 +87,11 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ user, userLogs = [
       {/* Section Header */}
       <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
         <div className="flex items-center gap-2">
-          <Award className="w-4 h-4 text-[#7C5CFF]" />
+          <Award className="w-4 h-4 text-[#7C3AED]" />
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-[var(--color-text-primary)]">
             {t('badgesSection')}
           </h3>
-          <span className="px-2 py-0.5 rounded-full bg-[#7C5CFF]/15 text-[#7C5CFF] font-black text-[11px] border border-[#7C5CFF]/30">
+          <span className="px-2 py-0.5 rounded-full bg-[#7C3AED]/15 text-[#7C3AED] font-black text-[11px] border border-[#7C3AED]/30">
             {unlockedCount}/{allBadges.length} {t('badgeUnlocked')}
           </span>
         </div>
@@ -102,7 +102,7 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ user, userLogs = [
             onClick={() => setFilter('all')}
             className={`px-2.5 py-1 rounded-md transition-all ${
               filter === 'all'
-                ? 'bg-[#7C5CFF] text-white shadow'
+                ? 'bg-[#7C3AED] text-white shadow'
                 : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
             }`}
           >
@@ -112,7 +112,7 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ user, userLogs = [
             onClick={() => setFilter('unlocked')}
             className={`px-2.5 py-1 rounded-md transition-all ${
               filter === 'unlocked'
-                ? 'bg-[#7C5CFF] text-white shadow'
+                ? 'bg-[#7C3AED] text-white shadow'
                 : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
             }`}
           >
@@ -122,7 +122,7 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ user, userLogs = [
             onClick={() => setFilter('locked')}
             className={`px-2.5 py-1 rounded-md transition-all ${
               filter === 'locked'
-                ? 'bg-[#7C5CFF] text-white shadow'
+                ? 'bg-[#7C3AED] text-white shadow'
                 : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
             }`}
           >
@@ -194,7 +194,7 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ user, userLogs = [
                       {badge.progressCurrent}/{badge.progressMax}
                     </span>
                   )}
-                  <span className="text-[9px] text-[var(--color-text-secondary)] group-hover:text-[#7C5CFF] transition-colors">
+                  <span className="text-[9px] text-[var(--color-text-secondary)] group-hover:text-[#7C3AED] transition-colors">
                     Details →
                   </span>
                 </div>

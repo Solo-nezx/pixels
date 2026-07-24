@@ -12,10 +12,12 @@ marketplace, keep a wishlist, and connect with players who play what you play.
 - **Wishlist** — a dedicated screen for games you want next.
 - **Real game data** — live from the [RAWG](https://rawg.io/apidocs) database
   (with a curated Steam list and bundled mock data as automatic fallbacks).
-- **Auth** — Firebase (Google + email), **Discord** (via a Cloudflare Worker),
-  and a **Cloudflare Turnstile** bot-check on the login screen.
-- **Discord → Steam import** — signing in with Discord reads your *linked Steam
-  account* and imports the games you own/play.
+- **Cloud-backed & shared** — posts, marketplace listings, game logs, wishlist,
+  and follows persist to **Cloud Firestore** and are shared across devices/users
+  in real time.
+- **Auth** — Firebase (Google + email), an optional **Steam** sign-in (via a
+  Cloudflare Worker), and an optional **Cloudflare Turnstile** bot-check.
+- **Steam import** — signing in with Steam imports the games you own/play.
 - **Friend suggestions** — surfaces gamers who share the most games with you.
 - **Badges & milestones, dark/light theme, full RTL Arabic.**
 
@@ -30,39 +32,43 @@ npm run dev               # http://localhost:3000
 The app runs with **no keys** (game data falls back to mock, Discord/Turnstile
 hide themselves). Add keys to `.env` to light up the real integrations.
 
-### Environment keys (frontend — all public)
+### Environment keys (frontend — all public, all optional)
 
 | Variable | What it enables |
 |---|---|
 | `VITE_RAWG_API_KEY` | Live game browsing/search (free at rawg.io/apidocs) |
-| `VITE_DISCORD_CLIENT_ID` | The Discord sign-in button |
-| `VITE_WORKER_URL` | Points the app at your Cloudflare Worker |
+| `VITE_ENABLE_STEAM_LOGIN` | Set to `1` to show the "Continue with Steam" button |
 | `VITE_TURNSTILE_SITE_KEY` | Shows the Cloudflare Turnstile bot-check |
 
-Secrets (Discord client secret, Steam Web API key, Turnstile secret) live in the
-**Cloudflare Worker**, never in the frontend — see [`worker/README.md`](worker/README.md).
+Steam sign-in is served by the built-in **Netlify Function** `steam-auth`, which
+needs a server-side `STEAM_API_KEY` (from https://steamcommunity.com/dev/apikey)
+set in the Netlify environment — never in the frontend.
 
 ## Architecture
 
 ```
 Browser (Vite + React 19 + Tailwind v4)
-  |-- Firebase Auth + Firestore    (Google / email accounts + profiles)
-  |-- RAWG API                     (live game catalogue, direct from browser)
-  '-- Cloudflare Worker (worker/)  (the parts that need a server)
-        |-- Discord OAuth token exchange (holds the client secret)
-        |-- Steam Web API game import     (holds the Steam key)
-        '-- Turnstile verification        (holds the Turnstile secret)
+  |-- Firebase Auth                       (Google / email accounts)
+  |-- Cloud Firestore                     (profiles, posts, listings, logs, wishlist, follows)
+  |-- RAWG API                            (game catalogue, direct from browser)
+  '-- Netlify Functions (netlify/functions)
+        |-- steam-trending  (real "most played" + live player counts, keyless)
+        '-- steam-auth      (Steam OpenID sign-in + library import, needs STEAM_API_KEY)
 ```
 
-## Honest limits of the Discord integration
+## Data model (Firestore)
 
-Discord's public API intentionally does **not** expose:
+```
+users/{uid}                    profile + wishlist[] + followingIds[]
+users/{uid}/gameLogs/{gameId}  the user's logged games
+posts/{postId}                 social feed (real-time)
+listings/{listingId}           marketplace (real-time)
+```
 
-- **A user's game-play history / library.** Pixels gets "games played" only by
-  reading the user's *linked Steam account* (Discord `connections` scope) and
-  querying the Steam Web API. The player's Steam game details must be public.
-- **A user's friends list.** There is no scope for it. So friend suggestions in
-  Pixels are computed from **games players have in common**, not Discord friends.
+Security rules live in [`firestore.rules`](firestore.rules): everything is
+publicly readable; writes are restricted to the owner (posts also allow any
+signed-in user to toggle likes/reposts/comments). A fresh, empty database is
+seeded once from the bundled demo content so the feed looks alive on first run.
 
 ## Scripts
 
@@ -72,12 +78,26 @@ Discord's public API intentionally does **not** expose:
 | `npm run build` | Production build to `dist/` |
 | `npm run lint` | `tsc --noEmit` type-check |
 
-## Deploy
+## Deploy (Firebase Hosting)
 
-- **Frontend:** any static host. Cloudflare Pages pairs naturally with the Worker.
-- **Worker:** `cd worker && npm run deploy` (see its README).
+The project is wired for Firebase Hosting ([`firebase.json`](firebase.json),
+[`.firebaserc`](.firebaserc) → project `secure-bazaar-77c1c`).
+
+```bash
+npm run build                         # produce dist/
+firebase login                        # one-time, interactive
+firebase deploy --only hosting,firestore   # ship the app + security rules
+```
+
+> **Before auth works in production**, enable the sign-in providers in the
+> Firebase Console → Authentication → Sign-in method: **Google** and
+> **Email/Password** (Email/Password is currently disabled on the project).
+
+- **Worker (optional, for Steam):** `cd worker && npm run deploy` (see its README),
+  then set `VITE_WORKER_URL` and rebuild.
 
 ---
 
-_Originally scaffolded in Google AI Studio; extended with Discord/Steam/Cloudflare
-integrations, a dedicated wishlist, shared-game friend suggestions, and a design pass._
+_Originally scaffolded in Google AI Studio; extended with a Firestore-backed
+social/marketplace backend, Steam import, a dedicated wishlist, shared-game
+friend suggestions, and a design pass._

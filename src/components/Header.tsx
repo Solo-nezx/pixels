@@ -32,13 +32,13 @@ export const Header: React.FC = () => {
           onClick={goHome}
           className="flex items-center gap-2.5 cursor-pointer group select-none"
         >
-          <div className="relative w-8 h-8 rounded-lg bg-gradient-to-tr from-[#7C5CFF] to-[#2DD4BF] p-[2px] flex items-center justify-center shadow-sm shadow-[#7C5CFF]/30 group-hover:scale-105 transition-transform">
+          <div className="relative w-8 h-8 rounded-lg bg-gradient-to-tr from-[#7C3AED] to-[#F43F5E] p-[2px] flex items-center justify-center shadow-sm shadow-[#7C3AED]/30 group-hover:scale-105 transition-transform">
             <div className="w-full h-full bg-[#0E0F12] dark:bg-[#0E0F12] rounded-[6px] flex items-center justify-center relative overflow-hidden">
               {/* Pixel Art Accent Detail (3x3 grid) */}
               <div className="grid grid-cols-2 gap-0.5 w-3.5 h-3.5">
-                <div className="bg-[#7C5CFF] rounded-[1px]"></div>
-                <div className="bg-[#2DD4BF] rounded-[1px]"></div>
-                <div className="bg-[#2DD4BF] rounded-[1px]"></div>
+                <div className="bg-[#7C3AED] rounded-[1px]"></div>
+                <div className="bg-[#F43F5E] rounded-[1px]"></div>
+                <div className="bg-[#F43F5E] rounded-[1px]"></div>
                 <div className="bg-[#FF5D8F] rounded-[1px]"></div>
               </div>
             </div>
@@ -46,10 +46,10 @@ export const Header: React.FC = () => {
           
           <div className="flex flex-col">
             <div className="flex items-center gap-1">
-              <span className="font-extrabold text-xl tracking-tight text-[var(--color-text-primary)] font-mono">
+              <span className="font-extrabold text-xl tracking-tight text-gradient font-display">
                 {t('appName')}
               </span>
-              <span className="inline-block w-1.5 h-1.5 rounded-sm bg-[#7C5CFF] animate-pulse"></span>
+              <span className="inline-block w-1.5 h-1.5 rounded-sm bg-[#7C3AED] animate-pulse"></span>
             </div>
           </div>
         </div>
@@ -61,7 +61,7 @@ export const Header: React.FC = () => {
           {auth.isGuest && (
             <div 
               onClick={() => openGuestModal()}
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#2DD4BF]/10 text-[#2DD4BF] border border-[#2DD4BF]/20 cursor-pointer hover:bg-[#2DD4BF]/20 transition-colors"
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#F43F5E]/10 text-[#F43F5E] border border-[#F43F5E]/20 cursor-pointer hover:bg-[#F43F5E]/20 transition-colors"
             >
               <ShieldAlert className="w-3.5 h-3.5" />
               <span>{t('guestBadge')}</span>
@@ -101,7 +101,7 @@ export const Header: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="flex items-center gap-2 p-1 rounded-full border border-[var(--color-border)] hover:border-[#7C5CFF] transition-all"
+                className="flex items-center gap-2 p-1 rounded-full border border-[var(--color-border)] hover:border-[#7C3AED] transition-all"
               >
                 <img
                   src={auth.user.avatar}
@@ -150,7 +150,7 @@ export const Header: React.FC = () => {
           ) : (
             <button
               onClick={() => openGuestModal()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#7C5CFF] hover:bg-[#6D4CFF] text-white font-medium text-xs shadow-md shadow-[#7C5CFF]/25 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-medium text-xs shadow-md shadow-[#7C3AED]/25 transition-all"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>{t('login')}</span>

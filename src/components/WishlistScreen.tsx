@@ -26,7 +26,7 @@ export const WishlistScreen: React.FC = () => {
   return (
     <div className="w-full pb-24">
       {/* Hero header */}
-      <div className="relative overflow-hidden border-b border-[var(--color-border)] bg-gradient-to-br from-[#FF5D8F]/15 via-[var(--color-card)] to-[#7C5CFF]/10 px-5 py-7">
+      <div className="relative overflow-hidden border-b border-[var(--color-border)] bg-gradient-to-br from-[#FF5D8F]/15 via-[var(--color-card)] to-[#7C3AED]/10 px-5 py-7">
         <div className="absolute -right-6 -top-6 opacity-10">
           <Heart className="w-40 h-40 text-[#FF5D8F]" />
         </div>
@@ -115,7 +115,7 @@ export const WishlistScreen: React.FC = () => {
             </p>
             <button
               onClick={() => setActiveTab('search')}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#7C5CFF] text-white text-xs font-bold hover:bg-[#6D4CFF] shadow-lg shadow-[#7C5CFF]/25 transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#7C3AED] text-white text-xs font-bold hover:bg-[#6D28D9] shadow-lg shadow-[#7C3AED]/25 transition-all"
             >
               <SearchIcon className="w-3.5 h-3.5" />
               <span>{language === 'ar' ? 'تصفح الألعاب' : 'Browse games'}</span>

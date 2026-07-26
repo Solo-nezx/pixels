@@ -45,7 +45,7 @@ export const GamePreviewModal: React.FC<GamePreviewModalProps> = ({
       <div className="absolute inset-0" onClick={onClose} />
 
       {/* Pop-up Card */}
-      <div className="relative w-full max-w-sm bg-[var(--color-card)] rounded-3xl border border-[#7C3AED]/40 shadow-2xl shadow-[#7C3AED]/20 overflow-hidden z-10 animate-scale-up">
+      <div className="relative w-full max-w-sm bg-[var(--color-card)] rounded-3xl border border-[var(--color-primary)]/40 shadow-2xl shadow-[var(--color-primary)]/20 overflow-hidden z-10 animate-scale-up">
         
         {/* Banner / Poster Hero */}
         <div className="relative h-44 w-full bg-black">
@@ -61,15 +61,16 @@ export const GamePreviewModal: React.FC<GamePreviewModalProps> = ({
           <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-card)] via-black/30 to-black/60" />
 
           {/* Badge: Quick Preview Tag */}
-          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-[10px] font-bold text-[#7C3AED] border border-[#7C3AED]/30">
-            <Flame className="w-3 h-3 text-[#7C3AED]" />
+          <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md text-[10px] font-bold text-[var(--color-primary)] border border-[var(--color-primary)]/30">
+            <Flame className="w-3 h-3 text-[var(--color-primary)]" />
             <span>{isAr ? 'معاينة سريعة' : 'Quick Preview'}</span>
           </div>
 
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-3 right-3 p-1.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+            aria-label={isAr ? 'إغلاق' : 'Close'}
+            className="absolute top-3 right-3 min-w-11 min-h-11 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -137,10 +138,12 @@ export const GamePreviewModal: React.FC<GamePreviewModalProps> = ({
             {/* Wishlist button */}
             <button
               onClick={() => toggleWishlist(game.id)}
-              className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+              aria-label={isInWishlist ? (isAr ? 'في الأمنيات' : 'In Wishlist') : (isAr ? 'قائمة الأمنيات' : 'Wishlist')}
+              aria-pressed={isInWishlist}
+              className={`flex-1 py-2.5 px-3 min-h-11 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
                 isInWishlist
                   ? 'bg-rose-500/10 text-rose-500 border border-rose-500/40'
-                  : 'bg-[var(--color-bg)] text-[var(--color-text-primary)] border border-[var(--color-border)] hover:border-[#7C3AED]'
+                  : 'bg-[var(--color-bg)] text-[var(--color-text-primary)] border border-[var(--color-border)] hover:border-[var(--color-primary)]'
               }`}
             >
               <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-rose-500' : ''}`} />
@@ -150,7 +153,7 @@ export const GamePreviewModal: React.FC<GamePreviewModalProps> = ({
             {/* Full Details button */}
             <button
               onClick={handleFullDetail}
-              className="flex-1 py-2.5 px-3 rounded-xl bg-[#7C3AED] text-white text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-[#6D28D9] transition-all shadow-md shadow-[#7C3AED]/20"
+              className="flex-1 py-2.5 px-3 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-[var(--color-primary-hover)] transition-all shadow-md shadow-[var(--color-primary)]/20"
             >
               <span>{isAr ? 'التفاصيل الكاملة' : 'Full Overview'}</span>
               <ArrowRight className={`w-3.5 h-3.5 ${isAr ? 'rotate-180' : ''}`} />

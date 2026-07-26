@@ -18,3 +18,8 @@ worker/.dev.vars
 
 # Local MCP server config (contains an API key — do not commit)
 .mcp.json
+
+# Database snapshots and service-account keys — never commit these
+backups/
+*serviceAccount*.json
+*service-account*.json

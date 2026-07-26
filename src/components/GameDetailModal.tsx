@@ -16,7 +16,9 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({ game: initialG
     userGames, 
     logGame, 
     wishlist, 
-    toggleWishlist, 
+    toggleWishlist,
+    toggleFavoriteGame,
+    isFavoriteGame,
     addPost, 
     language 
   } = useApp();
@@ -43,6 +45,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({ game: initialG
 
   const existingLog = userGames.find(g => g.gameId === game.id);
   const isInWishlist = wishlist.includes(game.id);
+  const isFav = isFavoriteGame(game.id);
 
   const [rating, setRating] = useState(existingLog?.rating || 5);
   const [hours, setHours] = useState(existingLog?.hoursPlayed || 10);
@@ -52,7 +55,8 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({ game: initialG
 
   const handleSaveLog = (e: React.FormEvent) => {
     e.preventDefault();
-    logGame(game.id, rating, hours, status, reviewText);
+    // Pass the game itself: a title from live search isn't in the catalogue.
+    logGame(game.id, rating, hours, status, reviewText, game);
     if (reviewText.trim()) {
       // Also post as a social review on feed!
       addPost(reviewText.trim(), game, rating);
@@ -67,7 +71,8 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({ game: initialG
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/60 text-white backdrop-blur-md hover:bg-black/80 transition-colors"
+          aria-label={language === 'ar' ? 'إغلاق' : 'Close'}
+          className="absolute top-4 right-4 z-20 min-w-11 min-h-11 flex items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md hover:bg-black/80 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -124,7 +129,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({ game: initialG
               </span>
             ))}
             {game.platforms.map(p => (
-              <span key={p} className="px-2 py-0.5 rounded-md bg-[#7C3AED]/10 text-[#7C3AED] text-[10px] font-bold">
+              <span key={p} className="px-2 py-0.5 rounded-md bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-[10px] font-bold">
                 {p}
               </span>
             ))}
@@ -139,7 +144,7 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({ game: initialG
         <div className="p-3 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl flex items-center justify-between gap-2 mb-5">
           <button
             onClick={() => setShowLogForm(!showLogForm)}
-            className="flex-1 py-2.5 px-4 rounded-xl bg-[#7C3AED] text-white font-bold text-xs hover:bg-[#6D28D9] shadow-md shadow-[#7C3AED]/30 transition-all flex items-center justify-center gap-1.5"
+            className="flex-1 py-2.5 px-4 rounded-xl bg-[var(--color-primary)] text-white font-bold text-xs hover:bg-[var(--color-primary-hover)] shadow-md shadow-[var(--color-primary)]/30 transition-all flex items-center justify-center gap-1.5"
           >
             <Gamepad2 className="w-4 h-4" />
             <span>{existingLog ? 'Update Rating / Log' : t('logThisGame')}</span>
@@ -147,14 +152,32 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({ game: initialG
 
           <button
             onClick={() => toggleWishlist(game.id)}
-            className={`py-2.5 px-4 rounded-xl border font-bold text-xs transition-all flex items-center justify-center gap-1.5 ${
+            aria-label={isInWishlist ? t('inWishlist') : t('addToWishlist')}
+            aria-pressed={isInWishlist}
+            className={`py-2.5 px-4 min-h-11 rounded-xl border font-bold text-xs transition-all flex items-center justify-center gap-1.5 ${
               isInWishlist
-                ? 'border-[#FF5D8F] bg-[#FF5D8F]/15 text-[#FF5D8F]'
-                : 'border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[#FF5D8F]'
+                ? 'border-[var(--color-like)] bg-[var(--color-like)]/15 text-[var(--color-like)]'
+                : 'border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-[var(--color-like)]'
             }`}
           >
-            <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-[#FF5D8F]' : ''}`} />
+            <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-[var(--color-like)]' : ''}`} />
             <span className="hidden sm:inline">{isInWishlist ? t('inWishlist') : t('addToWishlist')}</span>
+          </button>
+
+          {/* Favourite toggle */}
+          <button
+            onClick={() => toggleFavoriteGame(game.id)}
+            aria-label={isFav ? t('removeFromFavorites') : t('addToFavorites')}
+            aria-pressed={isFav}
+            title={isFav ? t('removeFromFavorites') : t('addToFavorites')}
+            className={`py-2.5 px-4 min-h-11 rounded-xl border font-bold text-xs transition-all flex items-center justify-center gap-1.5 ${
+              isFav
+                ? 'border-amber-400 bg-amber-400/15 text-amber-400'
+                : 'border-[var(--color-border)] text-[var(--color-text-primary)] hover:border-amber-400'
+            }`}
+          >
+            <Star className={`w-4 h-4 ${isFav ? 'fill-amber-400' : ''}`} />
+            <span className="hidden sm:inline">{t('favoriteGames')}</span>
           </button>
         </div>
 
@@ -174,7 +197,9 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({ game: initialG
                     key={star}
                     type="button"
                     onClick={() => setRating(star)}
-                    className={`p-1.5 rounded-lg border transition-all ${
+                    aria-label={language === 'ar' ? `تقييم ${star} من 5` : `Rate ${star} out of 5`}
+                    aria-pressed={rating >= star}
+                    className={`icon-btn-inline p-1.5 rounded-lg border transition-all ${
                       rating >= star ? 'border-amber-400 bg-amber-400/10 text-amber-400' : 'border-[var(--color-border)] text-gray-500'
                     }`}
                   >
@@ -220,13 +245,13 @@ export const GameDetailModal: React.FC<GameDetailModalProps> = ({ game: initialG
                 placeholder={language === 'ar' ? 'اكتب مراجعتك أو انطباعك عن هذه اللعبة ليراه المتابعون...' : 'Write your review or thoughts on this game for the feed...'}
                 value={reviewText}
                 onChange={e => setReviewText(e.target.value)}
-                className="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-2.5 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
+                className="w-full bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-2.5 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-2.5 bg-[#7C3AED] text-white font-bold rounded-xl hover:bg-[#6D28D9] transition-colors flex items-center justify-center gap-1.5"
+              className="w-full py-2.5 bg-[var(--color-primary)] text-white font-bold rounded-xl hover:bg-[var(--color-primary-hover)] transition-colors flex items-center justify-center gap-1.5"
             >
               <Check className="w-4 h-4" />
               <span>{t('saveChanges')}</span>

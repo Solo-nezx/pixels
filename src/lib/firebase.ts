@@ -6,6 +6,9 @@ import {
   signOut as firebaseSignOut,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithCustomToken,
+  linkWithCredential,
+  EmailAuthProvider,
   updateProfile,
   onAuthStateChanged,
   User as FirebaseUser
@@ -15,11 +18,14 @@ import {
   doc,
   getDoc,
   getDocs,
+  getCountFromServer,
   setDoc,
   updateDoc,
   deleteDoc,
   collection,
+  collectionGroup,
   query,
+  where,
   orderBy,
   limit,
   onSnapshot,
@@ -29,10 +35,9 @@ import {
   increment,
   writeBatch,
 } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import firebaseConfig from '../../firebase-applet-config.json';
 
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
@@ -42,46 +47,31 @@ export const db = firebaseConfig.firestoreDatabaseId
   ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
   : getFirestore(app);
 
-// Initialize Firebase Storage
-export const storage = getStorage(app);
-
-/**
- * Uploads a file to Firebase Storage and returns the public download URL.
- * Falls back to base64 Data URL if Firebase Storage upload fails.
- */
-export async function uploadFileToFirebaseStorage(file: File, folder: string = 'uploads'): Promise<string> {
-  try {
-    const cleanFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const storageRef = ref(storage, `${folder}/${Date.now()}_${cleanFileName}`);
-    const snapshot = await uploadBytes(storageRef, file);
-    const downloadUrl = await getDownloadURL(snapshot.ref);
-    return downloadUrl;
-  } catch (err) {
-    console.warn('Firebase Storage upload issue, using local fallback:', err);
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-}
+// NOTE: Cloud Storage is not provisioned on this project (Firebase requires the
+// paid Blaze plan for new projects), so uploads are compressed client-side and
+// stored inline — see `src/lib/imageUpload.ts`.
 
 export {
   signInWithPopup,
   firebaseSignOut,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithCustomToken,
+  linkWithCredential,
+  EmailAuthProvider,
   updateProfile,
   onAuthStateChanged,
   doc,
   getDoc,
   getDocs,
+  getCountFromServer,
   setDoc,
   updateDoc,
   deleteDoc,
   collection,
+  collectionGroup,
   query,
+  where,
   orderBy,
   limit,
   onSnapshot,

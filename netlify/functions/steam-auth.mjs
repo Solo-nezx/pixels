@@ -16,7 +16,80 @@
  *   STEAM_API_KEY  — from https://steamcommunity.com/dev/apikey
  */
 
+// firebase-admin v13+ exposes only the modular entry points.
+import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
+
 const STEAM_OPENID = 'https://steamcommunity.com/openid/login';
+
+/**
+ * Admin SDK, used to mint a Firebase custom token so a Steam player becomes a
+ * real Firebase user (visible in Authentication → Users) instead of a
+ * browser-local session. Needs FIREBASE_SERVICE_ACCOUNT in the environment;
+ * without it we fall back to the old local-only session.
+ */
+function initAdmin() {
+  const existing = getApps();
+  if (existing.length) return existing[0];
+  const raw = process.env.FIREBASE_SERVICE_ACCOUNT;
+  if (!raw) throw new Error('service_account_missing');
+  return initializeApp({ credential: cert(JSON.parse(raw)) });
+}
+
+/**
+ * Upsert the player's profile and return a custom sign-in token.
+ * Returns null when the service account isn't configured.
+ */
+async function mintFirebaseSession(profile, games) {
+  try {
+    initAdmin();
+  } catch {
+    return null; // not configured — caller degrades to a local session
+  }
+
+  const uid = `steam_${profile.steamId}`;
+  const name = profile.username;
+  const username = profile.handle;
+
+  try {
+    await getFirestore().doc(`users/${uid}`).set({
+      id: uid,
+      name,
+      username,
+      avatar: profile.avatar,
+      banner: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200',
+      bio: 'Pixels gamer via Steam',
+      verified: true,
+      provider: 'steam',
+      steamId: profile.steamId,
+      // Lowercased mirrors so the member search can find them.
+      searchName: name.toLowerCase(),
+      searchUsername: username.toLowerCase(),
+      followersCount: 0,
+      followingCount: 0,
+      likesReceivedCount: 0,
+      gamesLoggedCount: games.length,
+      hoursPlayed: games.reduce((sum, g) => sum + (g.hoursPlayed || 0), 0),
+      // Public library, capped — powers shared-game friend suggestions.
+      libraryAppIds: games.slice(0, 120).map((g) => g.appId),
+      createdAtTs: Date.now(),
+      reviewsWrittenCount: 0,
+      wishlist: [],
+      followingIds: [],
+      blockedIds: [],
+      blockedByIds: [],
+    }, { merge: true });
+
+    return await getAuth().createCustomToken(uid, {
+      provider: 'steam',
+      steamId: profile.steamId,
+    });
+  } catch (e) {
+    console.error('mintFirebaseSession failed:', e);
+    return null;
+  }
+}
 const cover = (appid) => `https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/library_600x900.jpg`;
 const banner = (appid) => `https://cdn.cloudflare.steamstatic.com/steam/apps/${appid}/header.jpg`;
 
@@ -79,10 +152,9 @@ async function fetchOwnedGames(apiKey, steamId) {
     );
     const json = await res.json();
     const games = json?.response?.games || [];
-    // Most-played first, cap to keep the payload reasonable.
+    // Every owned game, most-played first (large libraries included).
     return games
       .sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0))
-      .slice(0, 40)
       .map((g) => ({
         appId: g.appid,
         title: g.name || `App ${g.appid}`,
@@ -141,18 +213,22 @@ export async function handler(event) {
     fetchOwnedGames(apiKey, steamId),
   ]);
 
-  const payload = {
-    ok: true,
-    profile: {
-      id: steamId,
-      username: profile?.personaname || `Gamer ${steamId.slice(-4)}`,
-      handle: profile?.personaname ? profile.personaname.replace(/\s+/g, '_').toLowerCase() : `steam_${steamId.slice(-6)}`,
-      email: null,
-      avatar: profile?.avatarfull || `https://api.dicebear.com/7.x/bottts/svg?seed=${steamId}`,
-      steamId,
-    },
-    games,
+  const resolvedProfile = {
+    id: steamId,
+    username: profile?.personaname || `Gamer ${steamId.slice(-4)}`,
+    handle: profile?.personaname ? profile.personaname.replace(/\s+/g, '_').toLowerCase() : `steam_${steamId.slice(-6)}`,
+    email: null,
+    avatar: profile?.avatarfull || `https://api.dicebear.com/7.x/bottts/svg?seed=${steamId}`,
+    steamId,
   };
 
-  return resultPage(base, payload);
+  // Turn the verified Steam identity into a real Firebase account.
+  const customToken = await mintFirebaseSession(resolvedProfile, games);
+
+  return resultPage(base, {
+    ok: true,
+    profile: resolvedProfile,
+    games,
+    customToken, // null when the service account isn't configured
+  });
 }

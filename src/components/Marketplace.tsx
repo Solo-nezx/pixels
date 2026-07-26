@@ -6,7 +6,7 @@ import { CreateListingModal } from './CreateListingModal';
 import { Search, Tag, Plus } from 'lucide-react';
 
 export const Marketplace: React.FC = () => {
-  const { t, listings, setSelectedListingForDetail, selectedListingForDetail } = useApp();
+  const { t, listings, setSelectedListingForDetail, selectedListingForDetail, requireAuth } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<'all' | ListingType>('all');
@@ -46,8 +46,9 @@ export const Marketplace: React.FC = () => {
             </p>
           </div>
           <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-bold shadow-md shadow-[#7C3AED]/25 transition-all"
+            onClick={() => requireAuth(() => setIsCreateModalOpen(true), t('createListing'))}
+            aria-label={t('createListing')}
+            className="flex items-center gap-1.5 px-3 py-2 min-h-11 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white text-xs font-bold shadow-md shadow-[var(--color-primary)]/25 transition-all"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">{t('createListing')}</span>
@@ -62,7 +63,7 @@ export const Marketplace: React.FC = () => {
             placeholder={t('searchMarketplace')}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl pl-9 pr-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
+            className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl pl-9 pr-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
           />
         </div>
 
@@ -70,9 +71,10 @@ export const Marketplace: React.FC = () => {
         <div className="flex items-center gap-2 mb-3 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setTypeFilter('all')}
+            aria-pressed={typeFilter === 'all'}
             className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
               typeFilter === 'all'
-                ? 'bg-[#7C3AED] text-white shadow-sm'
+                ? 'bg-[var(--color-primary)] text-white shadow-sm'
                 : 'bg-[var(--color-bg)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:text-[var(--color-text-primary)]'
             }`}
           >
@@ -80,9 +82,10 @@ export const Marketplace: React.FC = () => {
           </button>
           <button
             onClick={() => setTypeFilter('sale')}
+            aria-pressed={typeFilter === 'sale'}
             className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
               typeFilter === 'sale'
-                ? 'bg-[#7C3AED] text-white shadow-sm'
+                ? 'bg-[var(--color-primary)] text-white shadow-sm'
                 : 'bg-[var(--color-bg)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:text-[var(--color-text-primary)]'
             }`}
           >
@@ -90,9 +93,10 @@ export const Marketplace: React.FC = () => {
           </button>
           <button
             onClick={() => setTypeFilter('trade')}
+            aria-pressed={typeFilter === 'trade'}
             className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
               typeFilter === 'trade'
-                ? 'bg-[#F43F5E] text-slate-950 shadow-sm'
+                ? 'bg-[var(--color-secondary)] text-slate-950 shadow-sm'
                 : 'bg-[var(--color-bg)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:text-[var(--color-text-primary)]'
             }`}
           >
@@ -106,9 +110,10 @@ export const Marketplace: React.FC = () => {
             <button
               key={cat.key}
               onClick={() => setSelectedCategory(cat.key)}
+              aria-pressed={selectedCategory === cat.key}
               className={`px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
                 selectedCategory === cat.key
-                  ? 'text-[#7C3AED] bg-[#7C3AED]/10 font-bold'
+                  ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/10 font-bold'
                   : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
               }`}
             >
@@ -125,7 +130,7 @@ export const Marketplace: React.FC = () => {
             <div
               key={item.id}
               onClick={() => setSelectedListingForDetail(item)}
-              className="group rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] overflow-hidden cursor-pointer hover:border-[#7C3AED] shadow-sm hover:shadow-xl hover:shadow-[#7C3AED]/10 transition-all duration-300 flex flex-col justify-between"
+              className="group rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] overflow-hidden cursor-pointer hover:border-[var(--color-primary)] shadow-sm hover:shadow-xl hover:shadow-[var(--color-primary)]/10 transition-all duration-300 flex flex-col justify-between"
             >
               <div>
                 {/* Image & Badges */}
@@ -141,11 +146,11 @@ export const Marketplace: React.FC = () => {
                   />
                   <div className="absolute top-2.5 left-2.5 flex gap-1.5">
                     {item.type === 'trade' ? (
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[#F43F5E] text-slate-950 shadow-md">
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[var(--color-secondary)] text-slate-950 shadow-md">
                         {t('tradeBadge')}
                       </span>
                     ) : (
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[#7C3AED] text-white shadow-md">
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[var(--color-primary)] text-white shadow-md">
                         ${item.price}
                       </span>
                     )}
@@ -157,10 +162,10 @@ export const Marketplace: React.FC = () => {
 
                 {/* Listing Details */}
                 <div className="p-3">
-                  <span className="text-[10px] font-bold text-[#F43F5E] uppercase tracking-wider block mb-0.5">
+                  <span className="text-[10px] font-bold text-[var(--color-secondary)] uppercase tracking-wider block mb-0.5">
                     {item.category}
                   </span>
-                  <h3 className="font-bold text-sm text-[var(--color-text-primary)] line-clamp-2 leading-snug group-hover:text-[#7C3AED] transition-colors mb-1">
+                  <h3 className="font-bold text-sm text-[var(--color-text-primary)] line-clamp-2 leading-snug group-hover:text-[var(--color-primary)] transition-colors mb-1">
                     {item.title}
                   </h3>
                   <p className="text-xs text-[var(--color-text-secondary)] line-clamp-2 mb-3">

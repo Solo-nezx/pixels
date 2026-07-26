@@ -26,6 +26,7 @@ export const BadgeTooltip: React.FC<BadgeTooltipProps> = ({ badge, children, pos
   const { language } = useApp();
   const [isVisible, setIsVisible] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const tooltipId = `badge-tooltip-${badge.id}`;
 
   const title = language === 'ar' ? badge.titleAr : badge.titleEn;
   const description = language === 'ar' ? badge.descriptionAr : badge.descriptionEn;
@@ -77,19 +78,22 @@ export const BadgeTooltip: React.FC<BadgeTooltipProps> = ({ badge, children, pos
     : 0;
 
   return (
-    <div 
+    <div
       className="relative inline-block"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onClick={handleClickOrTouch}
+      aria-describedby={isVisible ? tooltipId : undefined}
     >
       {children}
 
       {isVisible && (
-        <div 
+        <div
+          id={tooltipId}
+          role="tooltip"
           className={`absolute z-50 w-64 p-3 bg-slate-900/95 backdrop-blur-md text-white rounded-xl border border-slate-700 shadow-2xl transition-all duration-200 animate-fadeIn pointer-events-none ${
-            position === 'top' 
-              ? 'bottom-full left-1/2 -translate-x-1/2 mb-2' 
+            position === 'top'
+              ? 'bottom-full left-1/2 -translate-x-1/2 mb-2'
               : 'top-full left-1/2 -translate-x-1/2 mt-2'
           }`}
           onClick={e => e.stopPropagation()}
@@ -129,7 +133,7 @@ export const BadgeTooltip: React.FC<BadgeTooltipProps> = ({ badge, children, pos
 
           {/* Earn Criteria Description */}
           <div className="text-[11px] text-slate-300 leading-snug mb-2">
-            <span className="font-bold text-[#F43F5E] block mb-0.5">
+            <span className="font-bold text-[var(--color-secondary)] block mb-0.5">
               {language === 'ar' ? 'معايير الإنجاز:' : 'Achievement Criteria:'}
             </span>
             {description}
@@ -140,11 +144,11 @@ export const BadgeTooltip: React.FC<BadgeTooltipProps> = ({ badge, children, pos
             <div className="pt-1.5 border-t border-slate-800/80">
               <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 mb-1">
                 <span>{language === 'ar' ? 'نسبة التقدم' : 'Criteria Progress'}</span>
-                <span className="text-[#7C3AED]">{badge.progressCurrent} / {badge.progressMax} ({progressPercent}%)</span>
+                <span className="text-[var(--color-primary)]">{badge.progressCurrent} / {badge.progressMax} ({progressPercent}%)</span>
               </div>
               <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
                 <div 
-                  className="bg-gradient-to-r from-[#7C3AED] to-[#F43F5E] h-full rounded-full"
+                  className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] h-full rounded-full"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>

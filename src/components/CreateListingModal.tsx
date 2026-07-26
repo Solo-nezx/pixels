@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import { MarketplaceListing, ListingCondition, ListingType } from '../types';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, ImageIcon, Loader2, Trash2 } from 'lucide-react';
+import { compressImage, uploadErrorMessage } from '../lib/imageUpload';
 
 interface CreateListingModalProps {
   onClose: () => void;
 }
 
 export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose }) => {
-  const { t, addListing } = useApp();
+  const { t, addListing, showToast, language } = useApp();
+  const isAr = language === 'ar';
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -18,6 +22,22 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
   const [category, setCategory] = useState<MarketplaceListing['category']>('Hardware');
   const [tradeOffersFor, setTradeOffersFor] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+
+  const handlePickImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    try {
+      setImageUrl(await compressImage(file, { maxDim: 1000, maxBytes: 140_000 }));
+      showToast(isAr ? 'تمت إضافة الصورة' : 'Image added');
+    } catch (err) {
+      console.error('listing image failed:', err);
+      showToast(uploadErrorMessage(err, isAr));
+    } finally {
+      setIsUploading(false);
+      if (e.target) e.target.value = '';
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +69,8 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
           </h3>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg)]"
+            aria-label="Close"
+            className="icon-btn"
           >
             <X className="w-5 h-5" />
           </button>
@@ -64,7 +85,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
                 type="button"
                 onClick={() => setType('sale')}
                 className={`py-2 rounded-lg font-bold transition-all ${
-                  type === 'sale' ? 'bg-[#7C3AED] text-white' : 'text-[var(--color-text-secondary)]'
+                  type === 'sale' ? 'bg-[var(--color-primary)] text-white' : 'text-[var(--color-text-secondary)]'
                 }`}
               >
                 {t('filterSale')}
@@ -73,7 +94,7 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
                 type="button"
                 onClick={() => setType('trade')}
                 className={`py-2 rounded-lg font-bold transition-all ${
-                  type === 'trade' ? 'bg-[#F43F5E] text-slate-950' : 'text-[var(--color-text-secondary)]'
+                  type === 'trade' ? 'bg-[var(--color-secondary)] text-slate-950' : 'text-[var(--color-text-secondary)]'
                 }`}
               >
                 {t('filterTrade')}
@@ -83,25 +104,27 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
 
           {/* Title */}
           <div>
-            <label className="font-semibold text-[var(--color-text-primary)] mb-1 block">Title</label>
+            <label htmlFor="listing-title" className="font-semibold text-[var(--color-text-primary)] mb-1 block">Title</label>
             <input
+              id="listing-title"
               type="text"
               required
               placeholder="e.g. DualSense Edge Controller"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
+              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
             />
           </div>
 
           {/* Category & Condition */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="font-semibold text-[var(--color-text-primary)] mb-1 block">Category</label>
+              <label htmlFor="listing-category" className="font-semibold text-[var(--color-text-primary)] mb-1 block">Category</label>
               <select
+                id="listing-category"
                 value={category}
                 onChange={e => setCategory(e.target.value as any)}
-                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
+                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
               >
                 <option value="Hardware">{t('categoryHardware')}</option>
                 <option value="Games">{t('categoryGames')}</option>
@@ -112,11 +135,12 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
             </div>
 
             <div>
-              <label className="font-semibold text-[var(--color-text-primary)] mb-1 block">Condition</label>
+              <label htmlFor="listing-condition" className="font-semibold text-[var(--color-text-primary)] mb-1 block">Condition</label>
               <select
+                id="listing-condition"
                 value={condition}
                 onChange={e => setCondition(e.target.value as any)}
-                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
+                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
               >
                 <option value="New">{t('conditionNew')}</option>
                 <option value="Like New">{t('conditionLikeNew')}</option>
@@ -129,57 +153,90 @@ export const CreateListingModal: React.FC<CreateListingModalProps> = ({ onClose 
           {/* Price or Trade offer */}
           {type === 'sale' ? (
             <div>
-              <label className="font-semibold text-[var(--color-text-primary)] mb-1 block">Price ($ USD)</label>
+              <label htmlFor="listing-price" className="font-semibold text-[var(--color-text-primary)] mb-1 block">Price ($ USD)</label>
               <input
+                id="listing-price"
                 type="number"
                 required
                 placeholder="150"
                 value={price}
                 onChange={e => setPrice(e.target.value ? Number(e.target.value) : '')}
-                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
+                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
               />
             </div>
           ) : (
             <div>
-              <label className="font-semibold text-[var(--color-text-primary)] mb-1 block">Looking to trade for...</label>
+              <label htmlFor="listing-trade-for" className="font-semibold text-[var(--color-text-primary)] mb-1 block">Looking to trade for...</label>
               <input
+                id="listing-trade-for"
                 type="text"
                 placeholder="e.g. Nintendo Switch OLED or PS5 Digital"
                 value={tradeOffersFor}
                 onChange={e => setTradeOffersFor(e.target.value)}
-                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#F43F5E]"
+                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-secondary)]"
               />
             </div>
           )}
 
-          {/* Image URL */}
+          {/* Item image — upload from device, or paste a link */}
           <div>
-            <label className="font-semibold text-[var(--color-text-primary)] mb-1 block">Item Image URL (Optional)</label>
-            <input
-              type="url"
-              placeholder="https://..."
-              value={imageUrl}
-              onChange={e => setImageUrl(e.target.value)}
-              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
-            />
+            <label className="font-semibold text-[var(--color-text-primary)] mb-1 block">
+              {isAr ? 'صورة المنتج (اختياري)' : 'Item Image (Optional)'}
+            </label>
+
+            {imageUrl ? (
+              <div className="relative mb-2 rounded-xl overflow-hidden border border-[var(--color-border)]">
+                <img src={imageUrl} alt="" className="w-full h-36 object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setImageUrl('')}
+                  aria-label={isAr ? 'إزالة' : 'Remove'}
+                  className="absolute top-2 end-2 p-1.5 rounded-full bg-black/70 text-white hover:bg-rose-600 transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <input ref={fileRef} type="file" accept="image/*" onChange={handlePickImage} className="hidden" />
+                <button
+                  type="button"
+                  disabled={isUploading}
+                  onClick={() => fileRef.current?.click()}
+                  className="pressable w-full mb-2 py-2.5 px-3 rounded-xl border border-[var(--color-secondary)]/40 bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] font-bold flex items-center justify-center gap-1.5 hover:bg-[var(--color-secondary)]/20 transition-all disabled:opacity-50"
+                >
+                  {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
+                  <span>{isAr ? 'رفع صورة من جهازك' : 'Upload from device'}</span>
+                </button>
+                <input
+                  id="listing-image-url"
+                  type="url"
+                  placeholder={isAr ? 'أو الصق رابط صورة https://...' : 'or paste an image link https://...'}
+                  value={imageUrl}
+                  onChange={e => setImageUrl(e.target.value)}
+                  className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
+                />
+              </>
+            )}
           </div>
 
           {/* Description */}
           <div>
-            <label className="font-semibold text-[var(--color-text-primary)] mb-1 block">Description</label>
+            <label htmlFor="listing-description" className="font-semibold text-[var(--color-text-primary)] mb-1 block">Description</label>
             <textarea
+              id="listing-description"
               rows={3}
               required
               placeholder="Item condition details, included accessories, or shipping info..."
               value={description}
               onChange={e => setDescription(e.target.value)}
-              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED]"
+              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)]"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 bg-[#7C3AED] text-white font-bold rounded-xl hover:bg-[#6D28D9] shadow-lg shadow-[#7C3AED]/30 transition-all text-xs flex items-center justify-center gap-1.5"
+            className="w-full py-3 bg-[var(--color-primary)] text-white font-bold rounded-xl hover:bg-[var(--color-primary-hover)] shadow-lg shadow-[var(--color-primary)]/30 transition-all text-xs flex items-center justify-center gap-1.5"
           >
             <Plus className="w-4 h-4" />
             <span>{t('createListing')}</span>

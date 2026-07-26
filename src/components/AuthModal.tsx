@@ -99,6 +99,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
           hoursPlayed: 0,
           gamesLoggedCount: 0,
           reviewsWrittenCount: 0,
+          createdAtTs: Date.now(),
         };
         await setDoc(userRef, loggedUser);
       } else {
@@ -158,6 +159,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
           hoursPlayed: 0,
           gamesLoggedCount: 0,
           reviewsWrittenCount: 0,
+          createdAtTs: Date.now(),
         };
 
         const userRef = doc(db, 'users', user.uid);
@@ -191,6 +193,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
             hoursPlayed: 0,
             gamesLoggedCount: 0,
             reviewsWrittenCount: 0,
+            createdAtTs: Date.now(),
           };
           await setDoc(userRef, loggedUser);
         }
@@ -217,25 +220,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-md bg-[var(--color-card)] rounded-2xl border border-[var(--color-border)] shadow-2xl p-6">
-        
+      <div className="relative w-full max-w-md bg-[var(--color-card)] rounded-3xl border border-white/10 ring-1 ring-[var(--color-primary)]/15 shadow-2xl shadow-[var(--color-primary)]/25 p-6 overflow-hidden animate-popIn">
+
+        {/* Top accent glow */}
+        <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-72 h-44 rounded-full bg-[var(--color-primary)]/25 blur-3xl" />
+
         {/* Close button */}
         <button
           onClick={closeGuestModal}
           disabled={loading}
-          className="absolute top-4 right-4 p-1.5 rounded-full text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg)] transition-colors disabled:opacity-50"
+          aria-label={language === 'ar' ? 'إغلاق' : 'Close'}
+          className="absolute top-4 right-4 icon-btn disabled:opacity-50"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Branding & Reason */}
         <div className="text-center mb-5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#7C3AED] to-[#F43F5E] p-[2px] mx-auto mb-2 shadow-lg shadow-[#7C3AED]/30">
-            <div className="w-full h-full bg-[#0E0F12] rounded-[14px] flex items-center justify-center font-mono font-bold text-white text-lg">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[var(--color-primary)] to-[var(--color-secondary)] p-[2px] mx-auto mb-3 shadow-lg shadow-[var(--color-primary)]/40">
+            <div className="w-full h-full bg-[var(--color-bg)] rounded-[14px] flex items-center justify-center font-mono font-black text-white text-lg">
               PX
             </div>
           </div>
-          <h2 className="text-lg font-black text-[var(--color-text-primary)]">
+          <h2 className="text-xl font-black text-[var(--color-text-primary)]">
             {isSignUp ? (language === 'ar' ? 'إنشاء حساب جديد' : 'Create New Account') : t('guestPromptTitle')}
           </h2>
           <p className="text-xs text-[var(--color-text-secondary)] mt-1 leading-relaxed">
@@ -252,7 +259,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
             type="button"
             onClick={() => { setIsSignUp(false); setError(null); }}
             className={`py-2 text-xs font-bold rounded-lg transition-all ${
-              !isSignUp ? 'bg-[#7C3AED] text-white' : 'text-[var(--color-text-secondary)]'
+              !isSignUp ? 'bg-[var(--color-primary)] text-white' : 'text-[var(--color-text-secondary)]'
             }`}
           >
             {t('login')}
@@ -261,7 +268,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
             type="button"
             onClick={() => { setIsSignUp(true); setError(null); }}
             className={`py-2 text-xs font-bold rounded-lg transition-all ${
-              isSignUp ? 'bg-[#7C3AED] text-white' : 'text-[var(--color-text-secondary)]'
+              isSignUp ? 'bg-[var(--color-primary)] text-white' : 'text-[var(--color-text-secondary)]'
             }`}
           >
             {t('signup')}
@@ -282,10 +289,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
             type="button"
             disabled={loading}
             onClick={handleGoogleLogin}
-            className="w-full py-2.5 px-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-xs font-bold text-[var(--color-text-primary)] hover:border-[#7C3AED] hover:bg-[var(--color-card)] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="pressable w-full py-3 px-4 rounded-2xl border border-white/10 bg-[var(--color-bg)] text-xs font-bold text-[var(--color-text-primary)] hover:border-[var(--color-primary)] hover:bg-[var(--color-elevated)] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loading ? (
-              <Loader2 className="w-4 h-4 animate-spin text-[#7C3AED]" />
+              <Loader2 className="w-4 h-4 animate-spin text-[var(--color-primary)]" />
             ) : (
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -303,7 +310,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
               type="button"
               disabled={loading}
               onClick={handleSteamLogin}
-              className="w-full py-2.5 px-4 rounded-xl bg-[#1b2838] text-xs font-bold text-white hover:bg-[#2a3f5a] transition-all flex items-center justify-center gap-2 disabled:opacity-50 border border-[#66c0f4]/30"
+              className="pressable w-full py-3 px-4 rounded-2xl bg-[#1b2838] text-xs font-bold text-white hover:bg-[#2a3f5a] transition-all flex items-center justify-center gap-2 disabled:opacity-50 border border-[#66c0f4]/30"
             >
               {loading || isImportingSteam ? (
                 <Loader2 className="w-4 h-4 animate-spin text-[#66c0f4]" />
@@ -341,43 +348,46 @@ export const AuthModal: React.FC<AuthModalProps> = ({ onSuccess }) => {
                 required
                 disabled={loading}
                 placeholder={t('displayName')}
+                aria-label={t('displayName')}
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl px-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED] disabled:opacity-50"
+                className="w-full bg-[var(--color-bg)] border border-white/10 rounded-full px-4 py-2.5 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)]/40 transition-all disabled:opacity-50"
               />
             </div>
           )}
 
           <div className="relative">
-            <Mail className="absolute top-2.5 left-3 w-4 h-4 text-[var(--color-text-secondary)]" />
+            <Mail className="absolute top-1/2 -translate-y-1/2 left-3.5 w-4 h-4 text-[var(--color-text-secondary)]" />
             <input
               type="email"
               required
               disabled={loading}
               placeholder={t('emailPlaceholder')}
+              aria-label={t('emailPlaceholder')}
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl pl-9 pr-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED] disabled:opacity-50"
+              className="w-full bg-[var(--color-bg)] border border-white/10 rounded-full pl-10 pr-4 py-2.5 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)]/40 transition-all disabled:opacity-50"
             />
           </div>
 
           <div className="relative">
-            <Lock className="absolute top-2.5 left-3 w-4 h-4 text-[var(--color-text-secondary)]" />
+            <Lock className="absolute top-1/2 -translate-y-1/2 left-3.5 w-4 h-4 text-[var(--color-text-secondary)]" />
             <input
               type="password"
               required
               disabled={loading}
               placeholder={t('passwordPlaceholder')}
+              aria-label={t('passwordPlaceholder')}
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="w-full bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl pl-9 pr-3 py-2 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[#7C3AED] disabled:opacity-50"
+              className="w-full bg-[var(--color-bg)] border border-white/10 rounded-full pl-10 pr-4 py-2.5 text-xs text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)]/40 transition-all disabled:opacity-50"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-[#7C3AED] text-white font-bold rounded-xl hover:bg-[#6D28D9] shadow-lg shadow-[#7C3AED]/30 transition-all text-xs flex items-center justify-center gap-2 disabled:opacity-50"
+            className="pressable w-full py-3 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-hover)] text-white font-bold rounded-full hover:shadow-[var(--glow-primary)] shadow-lg shadow-[var(--color-primary)]/30 transition-all text-xs flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" />}
             <span>{isSignUp ? t('signup') : t('login')}</span>

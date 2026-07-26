@@ -8,8 +8,12 @@ export const Toast: React.FC = () => {
   if (!toastMessage) return null;
 
   return (
-    <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-3 rounded-full bg-[#7C3AED] text-white shadow-lg shadow-[#7C3AED]/30 text-sm font-medium animate-bounce">
-      <CheckCircle2 className="w-4 h-4 text-white" />
+    <div
+      role="status"
+      aria-live="polite"
+      className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-3 rounded-full bg-[var(--color-primary)] text-white shadow-lg shadow-[var(--color-primary)]/30 text-sm font-medium animate-bounce"
+    >
+      <CheckCircle2 className="w-4 h-4 text-white" aria-hidden="true" />
       <span>{toastMessage}</span>
     </div>
   );

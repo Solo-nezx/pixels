@@ -1,12 +1,10 @@
 {
-  "projectId": "secure-bazaar-77c1c",
-  "appId": "1:589398708420:web:fe61fe1cb17f495c547991",
-  "apiKey": "AIzaSyBUzp2C4Ux9aoc9NEjs25btpWjhwSnmJU4",
-  "authDomain": "bazaar-77c1c.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-pixels-160d98de-7b71-4735-812b-720c9e47ee51",
-  "storageBucket": "secure-bazaar-77c1c.firebasestorage.app",
-  "messagingSenderId": "589398708420",
-  "measurementId": "",
-  "oAuthClientId": "589398708420-8ii2set071skbnvfioiqrfku4kf0jk0l.apps.googleusercontent.com",
-  "recaptchaSiteKey": ""
+  "projectId": "pixels-c10b3",
+  "appId": "1:129700431837:web:a3ada62ccdfc391563d834",
+  "apiKey": "AIzaSyCeAbxDCnbDjEuKJPp47trNXjOcqzdgYaU",
+  "authDomain": "pixels-c10b3.firebaseapp.com",
+  "firestoreDatabaseId": "",
+  "storageBucket": "pixels-c10b3.firebasestorage.app",
+  "messagingSenderId": "129700431837",
+  "measurementId": "G-G58N0QMEMW"
 }

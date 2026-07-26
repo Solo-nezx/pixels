@@ -18,8 +18,13 @@ export default defineConfig(() => {
           manualChunks: {
             // Firebase is the heaviest dependency — split it so the app shell
             // and vendor libraries can be cached independently.
-            firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+            firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
             react: ['react', 'react-dom'],
+            // Animation library — split so it caches independently of app code.
+            motion: ['motion/react'],
+            // Radix primitives behind shadcn/ui. Their own chunk, so app edits
+            // don't invalidate them and they don't bloat the app shell.
+            radix: ['radix-ui'],
           },
         },
       },

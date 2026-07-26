@@ -18,7 +18,7 @@
     ]
   },
   "firestore": {
-    "database": "ai-studio-pixels-160d98de-7b71-4735-812b-720c9e47ee51",
-    "rules": "firestore.rules"
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   }
 }

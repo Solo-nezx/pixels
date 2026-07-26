@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { PostCard } from './PostCard';
-import { Flame, Users, Sparkles, PlusCircle, Star, Eye } from 'lucide-react';
+import { Flame, Users, Sparkles, PlusCircle, Star, Eye, Loader2 } from 'lucide-react';
 import { Game } from '../types';
 import { GamePreviewModal } from './GamePreviewModal';
 import { useLongPress } from '../hooks/useLongPress';
@@ -34,7 +34,7 @@ const TrendingGameCardItem: React.FC<{
       className="flex-shrink-0 w-28 group cursor-pointer select-none touch-manipulation"
       title={isAr ? 'اضغط مطولاً للمعاينة السريعة' : 'Hold for quick preview'}
     >
-      <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-1.5 border border-[var(--color-border)] group-hover:border-[#7C3AED] shadow-sm group-hover:shadow-lg group-hover:shadow-[#7C3AED]/20 transition-all">
+      <div className="relative aspect-[3/4] rounded-xl overflow-hidden mb-1.5 border border-[var(--color-border)] group-hover:border-[var(--color-primary)] shadow-sm group-hover:shadow-lg group-hover:shadow-[var(--color-primary)]/20 transition-all">
         <img
           src={game.coverUrl}
           alt={game.title}
@@ -61,10 +61,10 @@ const TrendingGameCardItem: React.FC<{
 
         {/* Quick Peek Hint Badge */}
         <div className="absolute bottom-1.5 left-1.5 p-1 rounded-md bg-black/75 backdrop-blur-md text-[9px] text-white opacity-80 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 border border-white/10">
-          <Eye className="w-2.5 h-2.5 text-[#7C3AED]" />
+          <Eye className="w-2.5 h-2.5 text-[var(--color-primary)]" />
         </div>
       </div>
-      <h4 className="text-xs font-semibold text-[var(--color-text-primary)] truncate group-hover:text-[#7C3AED] transition-colors">
+      <h4 className="text-xs font-semibold text-[var(--color-text-primary)] truncate group-hover:text-[var(--color-primary)] transition-colors">
         {game.title}
       </h4>
       {typeof game.playerCount === 'number' && game.playerCount > 0 ? (
@@ -82,9 +82,25 @@ const TrendingGameCardItem: React.FC<{
 };
 
 export const HomeFeed: React.FC<HomeFeedProps> = ({ openCreatePostModal }) => {
-  const { t, posts, followingIds, setSelectedGameForDetail, auth, allGames, language } = useApp();
+  const {
+    t, posts, followingIds, setSelectedGameForDetail, auth, allGames, language, requireAuth,
+    hasMorePosts, loadMorePosts,
+  } = useApp();
   const [activeTab, setActiveTab] = useState<'trends' | 'friends'>('trends');
   const [previewGame, setPreviewGame] = useState<Game | null>(null);
+
+  // Infinite scroll: ask for more posts when the sentinel becomes visible.
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const node = sentinelRef.current;
+    if (!node || !hasMorePosts) return;
+    const observer = new IntersectionObserver(
+      (entries) => { if (entries[0]?.isIntersecting) loadMorePosts(); },
+      { rootMargin: '400px' }, // start fetching before the reader reaches the end
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasMorePosts, loadMorePosts, posts.length]);
 
   const isAr = language === 'ar';
 
@@ -101,14 +117,15 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ openCreatePostModal }) => {
       
       {/* Top Segmented Tabs: Trends & Friends — Friends only shows once signed in */}
       {isLoggedIn && (
-        <div className="sticky top-14 z-30 bg-[var(--color-bg)]/90 backdrop-blur-md border-b border-[var(--color-border)] p-2">
+        <div className="sticky top-14 md:top-0 z-30 bg-[var(--color-bg)]/90 backdrop-blur-md border-b border-[var(--color-border)] p-2">
           <div className="grid grid-cols-2 p-1 rounded-xl bg-[var(--color-card)] border border-[var(--color-border)]">
 
             <button
               onClick={() => setActiveTab('trends')}
+              aria-pressed={activeTab === 'trends'}
               className={`flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${
                 activeTab === 'trends'
-                  ? 'bg-[#7C3AED] text-white shadow-md shadow-[#7C3AED]/30'
+                  ? 'bg-[var(--color-primary)] text-white shadow-md shadow-[var(--color-primary)]/30'
                   : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
               }`}
             >
@@ -118,9 +135,10 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ openCreatePostModal }) => {
 
             <button
               onClick={() => setActiveTab('friends')}
+              aria-pressed={activeTab === 'friends'}
               className={`flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${
                 activeTab === 'friends'
-                  ? 'bg-[#7C3AED] text-white shadow-md shadow-[#7C3AED]/30'
+                  ? 'bg-[var(--color-primary)] text-white shadow-md shadow-[var(--color-primary)]/30'
                   : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
               }`}
             >
@@ -132,17 +150,17 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ openCreatePostModal }) => {
         </div>
       )}
 
-      {/* Trending Games Horizontal Carousel Widget (Only on Trends Tab) */}
+      {/* Trending Games carousel — on xl+ this moves to the RightRail column */}
       {effectiveTab === 'trends' && (
-        <section className="p-4 border-b border-[var(--color-border)] bg-[var(--color-card)]/40">
+        <section className="xl:hidden p-4 border-b border-[var(--color-border)] bg-[var(--color-card)]/40">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#F43F5E]" />
+              <Sparkles className="w-4 h-4 text-[var(--color-secondary)]" />
               <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-primary)]">
                 {t('trendingGames')}
               </h3>
             </div>
-            <span className="text-[11px] text-[#F43F5E] font-semibold cursor-pointer">
+            <span className="text-[11px] text-[var(--color-secondary)] font-semibold cursor-pointer">
               {t('viewAll')}
             </span>
           </div>
@@ -161,7 +179,7 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ openCreatePostModal }) => {
         </section>
       )}
 
-      {/* Post Creator Prompt Box */}
+      {/* Post Creator Prompt Box — guests get the sign-in prompt on tap */}
       <div className="p-4 border-b border-[var(--color-border)] bg-[var(--color-card)] flex items-center gap-3">
         <img
           src={auth.user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop&q=80'}
@@ -173,14 +191,15 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ openCreatePostModal }) => {
           className="w-9 h-9 rounded-full object-cover border border-[var(--color-border)]"
         />
         <button
-          onClick={openCreatePostModal}
-          className="flex-1 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-full px-4 py-2.5 text-xs text-[var(--color-text-secondary)] text-start hover:border-[#7C3AED] transition-colors"
+          onClick={() => requireAuth(openCreatePostModal, t('createPost'))}
+          className="flex-1 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-full px-4 py-2.5 text-xs text-[var(--color-text-secondary)] text-start hover:border-[var(--color-primary)] transition-colors"
         >
           {t('whatsPlaying')}
         </button>
         <button
-          onClick={openCreatePostModal}
-          className="p-2 rounded-full bg-[#7C3AED]/10 text-[#7C3AED] hover:bg-[#7C3AED]/20 transition-colors"
+          onClick={() => requireAuth(openCreatePostModal, t('createPost'))}
+          aria-label={t('createPost')}
+          className="icon-btn-inline p-2 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] hover:bg-[var(--color-primary)]/20 transition-colors"
         >
           <PlusCircle className="w-5 h-5" />
         </button>
@@ -196,11 +215,18 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ openCreatePostModal }) => {
           <div className="p-8 text-center text-xs text-[var(--color-text-secondary)]">
             <p className="mb-2">{t('noPostsYet')}</p>
             {effectiveTab === 'friends' && (
-              <p className="text-[#7C3AED] font-medium">Follow other gamers from the Search tab to populate your Friends feed!</p>
+              <p className="text-[var(--color-primary)] font-medium">Follow other gamers from the Search tab to populate your Friends feed!</p>
             )}
           </div>
         )}
       </div>
+
+      {/* Infinite scroll: loading the next batch when this scrolls into view */}
+      {hasMorePosts && displayPosts.length > 0 && (
+        <div ref={sentinelRef} className="flex items-center justify-center py-6">
+          <Loader2 className="w-5 h-5 animate-spin text-[var(--color-primary)]" />
+        </div>
+      )}
 
       {/* Quick Preview Modal for Game Long Press */}
       <GamePreviewModal

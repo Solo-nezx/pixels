@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Sun, Moon, Globe, LogIn, User as UserIcon, LogOut, ShieldAlert, Search } from 'lucide-react';
+import { Sun, Moon, Globe, LogIn, User as UserIcon, LogOut, ShieldAlert, Search, Settings } from 'lucide-react';
+import { SettingsModal } from './SettingsModal';
 
 export const Header: React.FC = () => {
   const {
@@ -13,10 +14,12 @@ export const Header: React.FC = () => {
     openGuestModal,
     setViewingProfileUser,
     setActiveTab,
+    requireAuth,
     t
   } = useApp();
 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const goHome = () => {
     setViewingProfileUser(null);
@@ -24,7 +27,8 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b backdrop-blur-md bg-[var(--color-bg)]/85 border-[var(--color-border)] transition-colors duration-200">
+    // Mobile-only: on md+ the SideNav carries the wordmark and these controls.
+    <header className="md:hidden sticky top-0 z-40 w-full border-b backdrop-blur-md bg-[var(--color-bg)]/85 border-[var(--color-border)] transition-colors duration-200">
       <div className="max-w-4xl lg:max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         
         {/* Logo Wordmark with subtle pixel-art accent */}
@@ -32,14 +36,14 @@ export const Header: React.FC = () => {
           onClick={goHome}
           className="flex items-center gap-2.5 cursor-pointer group select-none"
         >
-          <div className="relative w-8 h-8 rounded-lg bg-gradient-to-tr from-[#7C3AED] to-[#F43F5E] p-[2px] flex items-center justify-center shadow-sm shadow-[#7C3AED]/30 group-hover:scale-105 transition-transform">
-            <div className="w-full h-full bg-[#0E0F12] dark:bg-[#0E0F12] rounded-[6px] flex items-center justify-center relative overflow-hidden">
+          <div className="relative w-8 h-8 rounded-lg bg-gradient-to-tr from-[var(--color-primary)] to-[var(--color-secondary)] p-[2px] flex items-center justify-center shadow-sm shadow-[var(--color-primary)]/30 group-hover:scale-105 transition-transform">
+            <div className="w-full h-full bg-[var(--color-bg)] rounded-[6px] flex items-center justify-center relative overflow-hidden">
               {/* Pixel Art Accent Detail (3x3 grid) */}
               <div className="grid grid-cols-2 gap-0.5 w-3.5 h-3.5">
-                <div className="bg-[#7C3AED] rounded-[1px]"></div>
-                <div className="bg-[#F43F5E] rounded-[1px]"></div>
-                <div className="bg-[#F43F5E] rounded-[1px]"></div>
-                <div className="bg-[#FF5D8F] rounded-[1px]"></div>
+                <div className="bg-[var(--color-primary)] rounded-[1px]"></div>
+                <div className="bg-[var(--color-secondary)] rounded-[1px]"></div>
+                <div className="bg-[var(--color-secondary)] rounded-[1px]"></div>
+                <div className="bg-[var(--color-like)] rounded-[1px]"></div>
               </div>
             </div>
           </div>
@@ -49,7 +53,7 @@ export const Header: React.FC = () => {
               <span className="font-extrabold text-xl tracking-tight text-gradient font-display">
                 {t('appName')}
               </span>
-              <span className="inline-block w-1.5 h-1.5 rounded-sm bg-[#7C3AED] animate-pulse"></span>
+              <span className="inline-block w-1.5 h-1.5 rounded-sm bg-[var(--color-primary)] animate-pulse"></span>
             </div>
           </div>
         </div>
@@ -61,18 +65,19 @@ export const Header: React.FC = () => {
           {auth.isGuest && (
             <div 
               onClick={() => openGuestModal()}
-              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#F43F5E]/10 text-[#F43F5E] border border-[#F43F5E]/20 cursor-pointer hover:bg-[#F43F5E]/20 transition-colors"
+              className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] border border-[var(--color-secondary)]/20 cursor-pointer hover:bg-[var(--color-secondary)]/20 transition-colors"
             >
               <ShieldAlert className="w-3.5 h-3.5" />
               <span>{t('guestBadge')}</span>
             </div>
           )}
 
-          {/* Search shortcut */}
+          {/* Search shortcut — guests get the sign-in prompt */}
           <button
-            onClick={() => { setViewingProfileUser(null); setActiveTab('search'); }}
+            onClick={() => requireAuth(() => { setViewingProfileUser(null); setActiveTab('search'); }, t('navSearch'))}
             title={t('navSearch')}
-            className="p-2 rounded-lg border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-card)] transition-all"
+            aria-label={t('navSearch')}
+            className="icon-btn border border-[var(--color-border)]"
           >
             <Search className="w-4 h-4" />
           </button>
@@ -81,17 +86,29 @@ export const Header: React.FC = () => {
           <button
             onClick={toggleLanguage}
             title={t('language')}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-card)] transition-all"
+            aria-label={t('language')}
+            className="icon-btn gap-1 px-2.5 border border-[var(--color-border)] text-xs font-medium"
           >
             <Globe className="w-3.5 h-3.5" />
             <span className="uppercase tracking-wider font-bold">{language === 'en' ? 'AR' : 'EN'}</span>
+          </button>
+
+          {/* Settings */}
+          <button
+            onClick={() => setShowSettings(true)}
+            title={t('settings')}
+            aria-label={t('settings')}
+            className="icon-btn border border-[var(--color-border)]"
+          >
+            <Settings className="w-4 h-4" />
           </button>
 
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
             title={theme === 'dark' ? t('themeLight') : t('themeDark')}
-            className="p-2 rounded-lg border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-card)] transition-all"
+            aria-label={theme === 'dark' ? t('themeLight') : t('themeDark')}
+            className="icon-btn border border-[var(--color-border)]"
           >
             {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
           </button>
@@ -101,7 +118,9 @@ export const Header: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="flex items-center gap-2 p-1 rounded-full border border-[var(--color-border)] hover:border-[#7C3AED] transition-all"
+                aria-label={t('navProfile')}
+                aria-expanded={showProfileMenu}
+                className="icon-btn-inline flex items-center gap-2 p-1 rounded-full border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-all"
               >
                 <img
                   src={auth.user.avatar}
@@ -150,7 +169,7 @@ export const Header: React.FC = () => {
           ) : (
             <button
               onClick={() => openGuestModal()}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-medium text-xs shadow-md shadow-[#7C3AED]/25 transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium text-xs shadow-md shadow-[var(--color-primary)]/25 transition-all"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>{t('login')}</span>
@@ -159,6 +178,8 @@ export const Header: React.FC = () => {
 
         </div>
       </div>
+
+      {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
     </header>
   );
 };

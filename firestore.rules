@@ -6,11 +6,48 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // A moderator is anyone with an `admins/<their uid>` document. Create it by
+    // hand in the console — there is no way to grant yourself the role in-app.
+    function isAdmin() {
+      return isSignedIn()
+             && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // The admin list itself is never writable from a client.
+    match /admins/{uid} {
+      allow read: if isSignedIn() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
     // --- User profiles ------------------------------------------------------
-    // Public to read; only the owner can create/update their own document.
+    // Public to read. The owner may write their own document. Other signed-in
+    // users may only make one narrow, self-referential edit:
+    //   • blockedByIds — add or remove *their own* uid (blocking them)
+    //
+    // followersCount is deliberately NOT writable by others: an incrementable
+    // field can be inflated by repeating the +1 write. Follower numbers come
+    // from counting the `follows` collection instead.
     match /users/{userId} {
+      function changedOnly(keys) {
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(keys);
+      }
+      // Adding/removing only the caller's own uid from blockedByIds.
+      function isBlockedByDelta() {
+        return changedOnly(['blockedByIds'])
+               && request.resource.data.blockedByIds.toSet()
+                    .difference(resource.data.get('blockedByIds', []).toSet())
+                    .hasOnly([request.auth.uid])
+               && resource.data.get('blockedByIds', []).toSet()
+                    .difference(request.resource.data.blockedByIds.toSet())
+                    .hasOnly([request.auth.uid]);
+      }
+
       allow read: if true;
-      allow create, update: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isSignedIn() && (
+                      request.auth.uid == userId
+                      || isBlockedByDelta()
+                    );
       allow delete: if false;
 
       // A user's logged games live under their own document.
@@ -28,7 +65,29 @@ service cloud.firestore {
       allow read: if true;
       allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
       allow update: if isSignedIn();
-      allow delete: if isSignedIn() && resource.data.authorId == request.auth.uid;
+      // The author — or a moderator — may remove a post.
+      allow delete: if isSignedIn() && (resource.data.authorId == request.auth.uid || isAdmin());
+
+      // Comments live here rather than inside the post document, which would
+      // hit the 1 MB cap once a post also carries inline images.
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+        allow update: if false;
+        // The comment author, or the post's author, may remove it.
+        allow delete: if isSignedIn() && (
+                        resource.data.authorId == request.auth.uid
+                        || get(/databases/$(database)/documents/posts/$(postId)).data.authorId == request.auth.uid
+                      );
+      }
+    }
+
+    // A profile's "Replies" tab searches every post's comments at once with a
+    // collection-group query. Those are matched by path pattern, not by the
+    // nested rule above, so the read has to be granted here as well. Read-only:
+    // writes still go through the /posts/{postId}/comments rule.
+    match /{path=**}/comments/{commentId} {
+      allow read: if true;
     }
 
     // --- Marketplace --------------------------------------------------------
@@ -37,7 +96,63 @@ service cloud.firestore {
     match /listings/{listingId} {
       allow read: if true;
       allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
-      allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.sellerId == request.auth.uid;
+      // The seller — or a moderator — may remove a listing.
+      allow delete: if isSignedIn() && (resource.data.sellerId == request.auth.uid || isAdmin());
+    }
+
+    // --- Direct messages ----------------------------------------------------
+    // A conversation id is the two participant uids sorted and joined by "__",
+    // so membership is provable from the id without an extra document read.
+    match /conversations/{convId} {
+      function isParticipant() {
+        return isSignedIn() && request.auth.uid in convId.split('__');
+      }
+
+      allow read: if isParticipant();
+      allow create: if isParticipant()
+                    && request.auth.uid in request.resource.data.participants;
+      allow update: if isParticipant();
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if isSignedIn() && request.auth.uid in convId.split('__');
+        allow create: if isSignedIn()
+                      && request.auth.uid in convId.split('__')
+                      && request.resource.data.senderId == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+
+    // --- Follows ------------------------------------------------------------
+    // One document per follow, id = "<followerId>__<followedId>", so a follow
+    // can't be double-counted and only the follower can create or remove it.
+    // Follower totals are aggregated from here, never from a writable counter.
+    match /follows/{followId} {
+      allow read: if true;
+      allow create: if isSignedIn()
+                    && request.resource.data.followerId == request.auth.uid
+                    && followId == request.auth.uid + '__' + request.resource.data.followedId;
+      allow delete: if isSignedIn() && resource.data.followerId == request.auth.uid;
+      allow update: if false;
+    }
+
+    // --- Reports ------------------------------------------------------------
+    // Write-only from the app: a signed-in user may file a report as themselves.
+    // Nobody can read them back in the client — review them in the console.
+    match /reports/{reportId} {
+      allow create: if isSignedIn() && request.resource.data.reporterId == request.auth.uid;
+      // Moderators triage them in the app; ordinary users can never read them.
+      allow read, update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // --- Notifications ------------------------------------------------------
+    // Only the recipient can read or clear their own; any signed-in user may
+    // create one (a like/comment/follow notifies the other person).
+    match /notifications/{notificationId} {
+      allow read, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.actor.id == request.auth.uid;
     }
   }
 }

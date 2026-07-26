@@ -87,11 +87,11 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ user, userLogs = [
       {/* Section Header */}
       <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
         <div className="flex items-center gap-2">
-          <Award className="w-4 h-4 text-[#7C3AED]" />
+          <Award className="w-4 h-4 text-[var(--color-primary)]" />
           <h3 className="text-sm font-extrabold uppercase tracking-wider text-[var(--color-text-primary)]">
             {t('badgesSection')}
           </h3>
-          <span className="px-2 py-0.5 rounded-full bg-[#7C3AED]/15 text-[#7C3AED] font-black text-[11px] border border-[#7C3AED]/30">
+          <span className="px-2 py-0.5 rounded-full bg-[var(--color-primary)]/15 text-[var(--color-primary)] font-black text-[11px] border border-[var(--color-primary)]/30">
             {unlockedCount}/{allBadges.length} {t('badgeUnlocked')}
           </span>
         </div>
@@ -100,9 +100,10 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ user, userLogs = [
         <div className="flex gap-1 p-0.5 bg-[var(--color-bg)] rounded-lg border border-[var(--color-border)] text-[10px] font-bold">
           <button
             onClick={() => setFilter('all')}
-            className={`px-2.5 py-1 rounded-md transition-all ${
+            aria-pressed={filter === 'all'}
+            className={`icon-btn-inline px-2.5 py-1 rounded-md transition-all ${
               filter === 'all'
-                ? 'bg-[#7C3AED] text-white shadow'
+                ? 'bg-[var(--color-primary)] text-white shadow'
                 : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
             }`}
           >
@@ -110,9 +111,10 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ user, userLogs = [
           </button>
           <button
             onClick={() => setFilter('unlocked')}
-            className={`px-2.5 py-1 rounded-md transition-all ${
+            aria-pressed={filter === 'unlocked'}
+            className={`icon-btn-inline px-2.5 py-1 rounded-md transition-all ${
               filter === 'unlocked'
-                ? 'bg-[#7C3AED] text-white shadow'
+                ? 'bg-[var(--color-primary)] text-white shadow'
                 : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
             }`}
           >
@@ -120,9 +122,10 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ user, userLogs = [
           </button>
           <button
             onClick={() => setFilter('locked')}
-            className={`px-2.5 py-1 rounded-md transition-all ${
+            aria-pressed={filter === 'locked'}
+            className={`icon-btn-inline px-2.5 py-1 rounded-md transition-all ${
               filter === 'locked'
-                ? 'bg-[#7C3AED] text-white shadow'
+                ? 'bg-[var(--color-primary)] text-white shadow'
                 : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]'
             }`}
           >
@@ -153,7 +156,7 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ user, userLogs = [
               >
                 {/* Pin indicator icon */}
                 {isPinned && badge.unlocked && (
-                  <div className="absolute top-2 right-2 p-1 rounded-full bg-[#FF5D8F] text-white shadow text-[9px] flex items-center justify-center">
+                  <div className="absolute top-2 right-2 p-1 rounded-full bg-[var(--color-like)] text-white shadow text-[9px] flex items-center justify-center">
                     <Pin className="w-2.5 h-2.5 fill-white stroke-[2.5]" />
                   </div>
                 )}
@@ -194,7 +197,7 @@ export const BadgesSection: React.FC<BadgesSectionProps> = ({ user, userLogs = [
                       {badge.progressCurrent}/{badge.progressMax}
                     </span>
                   )}
-                  <span className="text-[9px] text-[var(--color-text-secondary)] group-hover:text-[#7C3AED] transition-colors">
+                  <span className="text-[9px] text-[var(--color-text-secondary)] group-hover:text-[var(--color-primary)] transition-colors">
                     Details →
                   </span>
                 </div>

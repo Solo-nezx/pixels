@@ -130,6 +130,21 @@ export async function fetchGameDetails(gameId: string | number): Promise<Game | 
   return fetchGameDetailsFromApi(String(gameId));
 }
 
+/** Below this many ratings/adds an entry is usually a fan mod, port test or demo. */
+const MIN_POPULARITY_SIGNAL = 10;
+
+/**
+ * RAWG's relevance order is good, so keep it — but push no-signal entries
+ * ("Elden Ring Test", "Elden Ring GB", …) below the real titles. Sorting purely
+ * by title match is worse: it promotes obscure exact-name clones over the game
+ * everyone means.
+ */
+export function rankSearchResults(games: Game[]): Game[] {
+  const known = games.filter((g) => (g.ratingCount || 0) >= MIN_POPULARITY_SIGNAL);
+  const obscure = games.filter((g) => (g.ratingCount || 0) < MIN_POPULARITY_SIGNAL);
+  return [...known, ...obscure];
+}
+
 /**
  * Searches for games on the RAWG API by query string.
  * Falls back gracefully if no API key is provided or request fails.
@@ -142,12 +157,13 @@ export async function searchGames(query: string, pageSize: number = 20): Promise
   if (apiKey) {
     try {
       const encodedQuery = encodeURIComponent(query.trim());
-      const url = `${RAWG_BASE_URL}/games?key=${apiKey}&search=${encodedQuery}&page_size=${pageSize}`;
+      // `search_precise` trims the fuzziest noise; ranking below does the rest.
+      const url = `${RAWG_BASE_URL}/games?key=${apiKey}&search=${encodedQuery}&search_precise=true&page_size=${pageSize}`;
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         if (data.results && Array.isArray(data.results)) {
-          return data.results.map(transformRawgGame);
+          return rankSearchResults(data.results.map(transformRawgGame));
         }
       }
     } catch (err) {

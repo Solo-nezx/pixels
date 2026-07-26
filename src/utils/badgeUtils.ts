@@ -108,10 +108,10 @@ export const BADGE_DEFINITIONS: Omit<Badge, 'unlocked' | 'unlockedAt' | 'progres
     descriptionAr: 'عضو مبكر يساهم في تشكيل مستقبل شبكة بيكسلز الاجتماعية.',
     iconName: 'Sparkles',
     category: 'community',
-    colorGradient: 'from-[#7C3AED] to-pink-500',
-    textColor: 'text-[#7C3AED]',
-    bgColor: 'bg-[#7C3AED]/10',
-    borderColor: 'border-[#7C3AED]/30',
+    colorGradient: 'from-[var(--color-primary)] to-pink-500',
+    textColor: 'text-[var(--color-primary)]',
+    bgColor: 'bg-[var(--color-primary)]/10',
+    borderColor: 'border-[var(--color-primary)]/30',
   },
 ];
 

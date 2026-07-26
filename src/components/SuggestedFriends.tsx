@@ -25,7 +25,7 @@ export const SuggestedFriends: React.FC = () => {
   return (
     <section>
       <div className="flex items-center gap-2 mb-1">
-        <Users className="w-4 h-4 text-[#F43F5E]" />
+        <Users className="w-4 h-4 text-[var(--color-secondary)]" />
         <h3 className="text-sm font-extrabold text-[var(--color-text-primary)]">
           {t('suggestedFriendsTitle')}
         </h3>
@@ -41,7 +41,7 @@ export const SuggestedFriends: React.FC = () => {
           return (
             <div
               key={user.id}
-              className="flex-shrink-0 w-64 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-4 shadow-sm hover:border-[#F43F5E]/60 transition-all"
+              className="flex-shrink-0 w-64 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-4 shadow-sm hover:border-[var(--color-secondary)]/60 transition-all"
             >
               <div className="flex items-center gap-3 mb-3">
                 <img
@@ -61,7 +61,7 @@ export const SuggestedFriends: React.FC = () => {
                     className="flex items-center gap-1 cursor-pointer hover:underline"
                   >
                     <h4 className="font-bold text-xs text-[var(--color-text-primary)] truncate">{user.name}</h4>
-                    {user.verified && <ShieldCheck className="w-3.5 h-3.5 text-[#7C3AED] shrink-0" />}
+                    {user.verified && <ShieldCheck className="w-3.5 h-3.5 text-[var(--color-primary)] shrink-0" />}
                   </div>
                   <p className="text-[11px] text-[var(--color-text-secondary)] truncate">@{user.username}</p>
                 </div>
@@ -69,8 +69,8 @@ export const SuggestedFriends: React.FC = () => {
 
               {/* Shared games */}
               <div className="flex items-center gap-1.5 mb-2">
-                <Gamepad2 className="w-3.5 h-3.5 text-[#F43F5E]" />
-                <span className="text-[11px] font-bold text-[#F43F5E]">
+                <Gamepad2 className="w-3.5 h-3.5 text-[var(--color-secondary)]" />
+                <span className="text-[11px] font-bold text-[var(--color-secondary)]">
                   {count} {count === 1 ? t('gameInCommon') : t('gamesInCommon')}
                 </span>
               </div>
@@ -87,7 +87,7 @@ export const SuggestedFriends: React.FC = () => {
                         'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=200&auto=format&fit=crop&q=80';
                     }}
                     onClick={() => setSelectedGameForDetail(g)}
-                    className="w-10 h-14 rounded-md object-cover border border-[var(--color-border)] cursor-pointer hover:border-[#7C3AED] transition-all"
+                    className="w-10 h-14 rounded-md object-cover border border-[var(--color-border)] cursor-pointer hover:border-[var(--color-primary)] transition-all"
                   />
                 ))}
                 {count > 4 && (
@@ -99,10 +99,11 @@ export const SuggestedFriends: React.FC = () => {
 
               <button
                 onClick={() => toggleFollowUser(user.id)}
+                aria-pressed={isFollowing}
                 className={`w-full py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
                   isFollowing
                     ? 'bg-[var(--color-bg)] text-[var(--color-text-primary)] border border-[var(--color-border)]'
-                    : 'bg-[#7C3AED] text-white hover:bg-[#6D28D9] shadow-sm'
+                    : 'bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] shadow-sm'
                 }`}
               >
                 {isFollowing ? (

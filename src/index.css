@@ -1,4 +1,7 @@
 @import "tailwindcss";
+/* Supplies the animate-in / fade-in-0 / zoom-in-95 utilities that shadcn
+   components use for enter and exit transitions. */
+@import "tw-animate-css";
 
 /* ---------------------------------------------------------------------------
    Typography — a deliberate pairing rather than the system default:
@@ -11,17 +14,28 @@
 --------------------------------------------------------------------------- */
 
 :root {
-  /* Gaming palette — neon purple + rose on deep indigo (no pure black). */
-  --color-bg: #0C0B1A;
-  --color-card: #17152B;
-  --color-elevated: #211D3A;
-  --color-primary: #7C3AED;
-  --color-primary-hover: #6D28D9;
-  --color-secondary: #F43F5E;
-  --color-text-primary: #ECEAF6;
-  --color-text-secondary: #9A93B8;
-  --color-border: #2A2544;
-  --color-accent-pink: #F43F5E;
+  /* Literal source values for the four names that Tailwind v4's --color-*
+     utility namespace shares with this palette (card / primary / secondary /
+     border). The shadcn bridge further down registers those same names, so
+     both sides read these literals instead of referencing each other — point
+     them at each other and the pair cancels out, leaving no colour at all. */
+  --px-card: #0F0F16;
+  --px-primary: #5E6AD2;
+  --px-secondary: #818CF8;
+  --px-border: #1E1E29;
+
+  /* Modern Dark (Cinema) — near-black + indigo accent, glassmorphism (skill). */
+  --color-bg: #060609;
+  --color-card: var(--px-card);
+  --color-elevated: #17171F;
+  --color-primary: var(--px-primary);
+  --color-primary-hover: #4E5AC0;
+  --color-secondary: var(--px-secondary);
+  --color-text-primary: #EDEDEF;
+  --color-text-secondary: #8A8F98;
+  --color-border: var(--px-border);
+  --color-accent-pink: #818CF8;
+  --color-like: #FB4E7D;
 
   --radius: 16px;
 
@@ -30,24 +44,87 @@
   --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
 
   --shadow-soft: 0 1px 2px rgba(0,0,0,.30), 0 10px 30px -14px rgba(0,0,0,.6);
-  --shadow-pop: 0 14px 44px -12px rgba(124,58,237,.5);
-  --glow-primary: 0 0 24px -4px rgba(124,58,237,.55);
-  --glow-accent: 0 0 24px -4px rgba(244,63,94,.5);
+  --shadow-pop: 0 14px 44px -12px rgba(94,106,210,.5);
+  --glow-primary: 0 0 26px -4px rgba(94,106,210,.6);
+  --glow-accent: 0 0 26px -4px rgba(129,140,248,.5);
 
   --ring: 0 0 0 2px var(--color-bg), 0 0 0 4px var(--color-primary);
 }
 
 html.light {
-  --color-bg: #F6F5FC;
-  --color-card: #FFFFFF;
+  /* Overriding the literals switches the app and shadcn components together. */
+  --px-card: #FFFFFF;
+  --px-primary: #4E5AC0;
+  --px-secondary: #6366F1;
+  --px-border: #E6E6EF;
+
+  --color-bg: #F5F6FA;
   --color-elevated: #FFFFFF;
-  --color-primary: #7C3AED;
-  --color-primary-hover: #6D28D9;
-  --color-secondary: #E11D48;
-  --color-text-primary: #17132A;
-  --color-text-secondary: #6B6480;
-  --color-border: #E7E3F2;
-  --shadow-soft: 0 1px 2px rgba(23,19,42,.06), 0 12px 32px -18px rgba(23,19,42,.28);
+  --color-primary-hover: #3E4AB0;
+  --color-text-primary: #14141C;
+  --color-text-secondary: #64646F;
+  --color-like: #E11D48;
+  --shadow-soft: 0 1px 2px rgba(20,20,28,.06), 0 12px 32px -18px rgba(20,20,28,.28);
+}
+
+
+/* ---------------------------------------------------------------------------
+   shadcn/ui bridge
+   ---------------------------------------------------------------------------
+   shadcn components are styled with their own token names (--background,
+   --primary, --muted…). Rather than let a shadcn install overwrite the Pixels
+   palette above, those names are ALIASED onto it here — so a component added
+   with "npx shadcn@latest add <name>" arrives already wearing the Pixels theme,
+   in both light and dark, with no per-component restyling.
+
+   Edit the palette above; this layer follows automatically.
+--------------------------------------------------------------------------- */
+:root {
+  --background: var(--color-bg);
+  --foreground: var(--color-text-primary);
+  --card: var(--px-card);
+  --card-foreground: var(--color-text-primary);
+  --popover: var(--color-elevated);
+  --popover-foreground: var(--color-text-primary);
+  --primary: var(--px-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--px-secondary);
+  --secondary-foreground: #ffffff;
+  --muted: var(--color-elevated);
+  --muted-foreground: var(--color-text-secondary);
+  --accent: var(--px-secondary);
+  --accent-foreground: #ffffff;
+  --destructive: var(--color-like);
+  --destructive-foreground: #ffffff;
+  --border: var(--px-border);
+  --input: var(--px-border);
+  --ring: var(--px-primary);
+  --radius: 16px;
+}
+
+/* Tailwind v4 has no config file here, so utilities are registered inline. */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-sm: calc(var(--radius) - 8px);
 }
 
 /* Arabic gets its own font stack for correct, warm letterforms. */
@@ -96,6 +173,14 @@ h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0
 .glow-primary { box-shadow: var(--glow-primary); }
 .glow-accent { box-shadow: var(--glow-accent); }
 
+/* Tactile press feedback on interactive elements (skill: touch & interaction). */
+.pressable { transition: transform .12s cubic-bezier(.16,1,.3,1); }
+.pressable:active { transform: scale(.93); }
+
+/* Heart pop when a like fires. */
+@keyframes heartPop { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
+.heart-pop { animation: heartPop .32s cubic-bezier(.16,1,.3,1); }
+
 /* Gradient wordmark / highlight text. */
 .text-gradient {
   background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
@@ -120,6 +205,36 @@ h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0
 
 /* Consistent, accessible focus ring on keyboard nav */
 :focus-visible { outline: none; box-shadow: var(--ring); border-radius: 12px; }
+
+/* Icon-only action button — 44x44 min hit area (skill: touch-target) with tap feedback.
+   The icon itself stays small (w-4/w-5); padding pads the tappable area, not the glyph. */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 12px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color .18s ease, background-color .18s ease, border-color .18s ease, transform .12s ease;
+}
+.icon-btn:hover { color: var(--color-text-primary); background: var(--color-card); }
+.icon-btn:active { transform: scale(.92); }
+
+/* Same hit-area guarantee for icon buttons inside dense rows (post actions, comment bars)
+   where a visible 44px box would break the layout — padding expands the invisible tap
+   area via a pseudo-element instead of visual size. */
+.icon-btn-inline {
+  position: relative;
+  cursor: pointer;
+}
+.icon-btn-inline::after {
+  content: "";
+  position: absolute;
+  inset: -12px;
+}
+.icon-btn-inline:active { transform: scale(.92); }
 
 ::selection { background: color-mix(in srgb, var(--color-primary) 35%, transparent); color: #fff; }
 

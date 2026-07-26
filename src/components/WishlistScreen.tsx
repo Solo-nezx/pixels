@@ -26,14 +26,14 @@ export const WishlistScreen: React.FC = () => {
   return (
     <div className="w-full pb-24">
       {/* Hero header */}
-      <div className="relative overflow-hidden border-b border-[var(--color-border)] bg-gradient-to-br from-[#FF5D8F]/15 via-[var(--color-card)] to-[#7C3AED]/10 px-5 py-7">
+      <div className="relative overflow-hidden border-b border-[var(--color-border)] bg-gradient-to-br from-[var(--color-like)]/15 via-[var(--color-card)] to-[var(--color-primary)]/10 px-5 py-7">
         <div className="absolute -right-6 -top-6 opacity-10">
-          <Heart className="w-40 h-40 text-[#FF5D8F]" />
+          <Heart className="w-40 h-40 text-[var(--color-like)]" />
         </div>
         <div className="relative">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#FF5D8F]/15 border border-[#FF5D8F]/30 mb-3">
-            <Heart className="w-3.5 h-3.5 text-[#FF5D8F] fill-[#FF5D8F]" />
-            <span className="text-[11px] font-bold text-[#FF5D8F] uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[var(--color-like)]/15 border border-[var(--color-like)]/30 mb-3">
+            <Heart className="w-3.5 h-3.5 text-[var(--color-like)] fill-[var(--color-like)]" />
+            <span className="text-[11px] font-bold text-[var(--color-like)] uppercase tracking-wider">
               {t('wishlistSection')}
             </span>
           </div>
@@ -58,7 +58,7 @@ export const WishlistScreen: React.FC = () => {
           {games.map((game) => (
             <div
               key={game.id}
-              className="group relative rounded-2xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-card)] shadow-sm hover:shadow-xl hover:shadow-[#FF5D8F]/10 hover:border-[#FF5D8F]/60 transition-all duration-300"
+              className="group relative rounded-2xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-card)] shadow-sm hover:shadow-xl hover:shadow-[var(--color-like)]/10 hover:border-[var(--color-like)]/60 transition-all duration-300"
             >
               <div
                 onClick={() => setSelectedGameForDetail(game)}
@@ -92,7 +92,8 @@ export const WishlistScreen: React.FC = () => {
               <button
                 onClick={() => toggleWishlist(game.id)}
                 title={t('removeFromWishlist')}
-                className="absolute top-2 left-2 p-1.5 rounded-full bg-black/60 backdrop-blur text-white opacity-0 group-hover:opacity-100 hover:bg-rose-500 transition-all"
+                aria-label={t('removeFromWishlist')}
+                className="absolute top-2 left-2 min-w-11 min-h-11 inline-flex items-center justify-center rounded-full bg-black/60 backdrop-blur text-white opacity-0 group-hover:opacity-100 hover:bg-rose-500 transition-all"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
@@ -102,8 +103,8 @@ export const WishlistScreen: React.FC = () => {
       ) : (
         <div className="p-8">
           <div className="max-w-sm mx-auto text-center py-12 px-6 rounded-3xl border border-dashed border-[var(--color-border)] bg-[var(--color-card)]">
-            <div className="w-14 h-14 rounded-2xl bg-[#FF5D8F]/10 flex items-center justify-center mx-auto mb-4">
-              <Heart className="w-7 h-7 text-[#FF5D8F]" />
+            <div className="w-14 h-14 rounded-2xl bg-[var(--color-like)]/10 flex items-center justify-center mx-auto mb-4">
+              <Heart className="w-7 h-7 text-[var(--color-like)]" />
             </div>
             <h3 className="text-sm font-bold text-[var(--color-text-primary)] mb-1">
               {t('emptyWishlist')}
@@ -115,7 +116,7 @@ export const WishlistScreen: React.FC = () => {
             </p>
             <button
               onClick={() => setActiveTab('search')}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#7C3AED] text-white text-xs font-bold hover:bg-[#6D28D9] shadow-lg shadow-[#7C3AED]/25 transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold hover:bg-[var(--color-primary-hover)] shadow-lg shadow-[var(--color-primary)]/25 transition-all"
             >
               <SearchIcon className="w-3.5 h-3.5" />
               <span>{language === 'ar' ? 'تصفح الألعاب' : 'Browse games'}</span>

@@ -6,6 +6,11 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# Injects per-post Open Graph tags so shared links preview correctly.
+[[edge_functions]]
+  function = "og-tags"
+  path = "/"
+
 # SPA fallback — serve index.html for all routes.
 [[redirects]]
   from = "/*"

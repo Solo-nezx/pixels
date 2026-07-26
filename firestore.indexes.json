@@ -1,0 +1,50 @@
+{
+  "indexes": [
+    {
+      "//": "Message threads: 'my conversations, most recent first'. Without this the DM list throws FAILED_PRECONDITION and renders empty.",
+      "collectionGroup": "conversations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "participants", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "updatedAtTs", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "Notification feed: newest first for one recipient.",
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "createdAtTs", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "Profile > Posts tab: everything one member wrote, newest first.",
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "authorId", "order": "ASCENDING" },
+        { "fieldPath": "createdAtTs", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "Profile > Replies tab: comments live under posts/{id}/comments, so this must be COLLECTION_GROUP to search across every post.",
+      "collectionGroup": "comments",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "authorId", "order": "ASCENDING" },
+        { "fieldPath": "createdAtTs", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "//": "Marketplace: a seller's own listings, newest first.",
+      "collectionGroup": "listings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "sellerId", "order": "ASCENDING" },
+        { "fieldPath": "createdAtTs", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

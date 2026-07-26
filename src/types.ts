@@ -46,6 +46,9 @@ export interface User {
   isFollowing?: boolean;
   isPrivate?: boolean;
 
+  /** When the account was created (ms). Shown as "member since". */
+  createdAtTs?: number;
+
   // Auth provenance & linked accounts
   provider?: AuthProvider;
   steamId?: string | null;
@@ -77,6 +80,12 @@ export interface DiscordAuthResult {
   };
   connections?: { type: string; name: string; id: string }[];
   games?: SteamGame[];
+  /**
+   * Firebase custom token minted by the Worker/Function so the Steam player
+   * becomes a real Firebase user. Null when the server isn't configured for it,
+   * in which case the session stays browser-local.
+   */
+  customToken?: string | null;
 }
 
 export type GameStatus = 'playing' | 'completed' | 'backlog' | 'dropped' | 'wishlist';
@@ -102,12 +111,24 @@ export interface Game {
 
 export interface UserGameLog {
   gameId: string;
+  /**
+   * Snapshot of the game at log time. Without it a game logged from a live
+   * search vanishes on reload, because the in-memory catalogue only holds the
+   * current trending list.
+   */
+  game?: Game;
   rating: number; // 1 to 5 stars
   hoursPlayed: number;
   status: GameStatus;
   loggedAt: string;
   reviewText?: string;
   isFavorite?: boolean;
+  /**
+   * Set by the Steam "currently playing" sync rather than by the member.
+   * Only auto-set entries are demoted when a game drops out of the recent
+   * five — a status someone chose by hand is never overwritten.
+   */
+  autoPlaying?: boolean;
 }
 
 export interface Post {
@@ -119,13 +140,14 @@ export interface Post {
   rating?: number; // 1-5
   imageUrl?: string;
   images?: string[];
-  videos?: string[];
   likesCount: number;
   commentsCount: number;
   repostsCount: number;
   isLiked?: boolean;
   isReposted?: boolean;
   isSaved?: boolean;
+  /** Set when the author edited the body. */
+  editedAtTs?: number;
   comments?: Comment[];
 }
 
@@ -154,6 +176,54 @@ export interface MarketplaceListing {
   createdAt: string;
   tradeOffersFor?: string; // what seller is looking for
   status: 'active' | 'pending' | 'sold';
+}
+
+// ---------------------------------------------------------------------------
+// Direct messages
+// ---------------------------------------------------------------------------
+
+/** Denormalised participant info so a conversation list needs no extra reads. */
+export interface ParticipantMeta {
+  id: string;
+  name: string;
+  username: string;
+  avatar: string;
+}
+
+export interface Conversation {
+  id: string;
+  participants: string[];
+  participantsMeta: Record<string, ParticipantMeta>;
+  lastMessage?: { text: string; senderId: string; createdAtTs: number };
+  updatedAtTs: number;
+  /** Unread count per participant uid. */
+  unread?: Record<string, number>;
+}
+
+export interface Message {
+  id: string;
+  senderId: string;
+  text: string;
+  createdAtTs: number;
+}
+
+// ---------------------------------------------------------------------------
+// Notifications
+// ---------------------------------------------------------------------------
+
+export type NotificationType = 'like' | 'comment' | 'follow' | 'message';
+
+export interface AppNotification {
+  id: string;
+  /** Recipient uid. */
+  userId: string;
+  type: NotificationType;
+  actor: ParticipantMeta;
+  postId?: string;
+  /** Short preview (comment body, message text…). */
+  text?: string;
+  createdAtTs: number;
+  read: boolean;
 }
 
 export interface AuthState {

@@ -67,7 +67,8 @@ export const BadgeDetailModal: React.FC<BadgeDetailModalProps> = ({
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-full text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg)] transition-colors"
+          aria-label={language === 'ar' ? 'إغلاق' : 'Close'}
+          className="icon-btn absolute top-4 right-4"
         >
           <X className="w-5 h-5" />
         </button>
@@ -116,13 +117,13 @@ export const BadgeDetailModal: React.FC<BadgeDetailModalProps> = ({
           <div className="mb-5 p-3 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] text-left">
             <div className="flex items-center justify-between text-xs font-bold mb-1.5">
               <span className="text-[var(--color-text-secondary)]">{t('badgeProgress')}</span>
-              <span className="text-[#7C3AED]">
+              <span className="text-[var(--color-primary)]">
                 {badge.progressCurrent} / {badge.progressMax} ({progressPercent}%)
               </span>
             </div>
             <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
               <div
-                className="bg-gradient-to-r from-[#7C3AED] to-[#F43F5E] h-full rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] h-full rounded-full transition-all duration-500"
                 style={{ width: `${progressPercent}%` }}
               ></div>
             </div>
@@ -133,10 +134,12 @@ export const BadgeDetailModal: React.FC<BadgeDetailModalProps> = ({
         {isSelf && badge.unlocked && (
           <button
             onClick={() => onTogglePin(badge.id)}
-            className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 border shadow-md ${
+            aria-pressed={isPinned}
+            aria-label={isPinned ? t('unpinBadge') : t('pinBadge')}
+            className={`icon-btn-inline w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 border shadow-md ${
               isPinned
-                ? 'bg-[#FF5D8F]/15 text-[#FF5D8F] border-[#FF5D8F]/40 hover:bg-[#FF5D8F]/25'
-                : 'bg-[var(--color-bg)] text-[var(--color-text-primary)] border-[var(--color-border)] hover:border-[#7C3AED]'
+                ? 'bg-[var(--color-like)]/15 text-[var(--color-like)] border-[var(--color-like)]/40 hover:bg-[var(--color-like)]/25'
+                : 'bg-[var(--color-bg)] text-[var(--color-text-primary)] border-[var(--color-border)] hover:border-[var(--color-primary)]'
             }`}
           >
             {isPinned ? (
@@ -146,7 +149,7 @@ export const BadgeDetailModal: React.FC<BadgeDetailModalProps> = ({
               </>
             ) : (
               <>
-                <Pin className="w-4 h-4 text-[#7C3AED]" />
+                <Pin className="w-4 h-4 text-[var(--color-primary)]" />
                 <span>{t('pinBadge')}</span>
               </>
             )}

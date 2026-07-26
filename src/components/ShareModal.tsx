@@ -35,12 +35,13 @@ export const ShareModal: React.FC<ShareModalProps> = ({
     ? (isAr ? `تفاصيل لعبة ${game.title} - المطور: ${game.developer}` : `Check out ${game.title} developed by ${game.developer}`)
     : 'Join the Pixels gamer community!';
 
-  const currentUrl = window.location.href.split('#')[0];
+  // Build from origin + path so an existing ?post= query can't be duplicated.
+  const baseUrl = `${window.location.origin}${window.location.pathname}`;
   const shareUrl = post
-    ? `${currentUrl}?post=${post.id}`
+    ? `${baseUrl}?post=${encodeURIComponent(post.id)}`
     : game
-    ? `${currentUrl}?game=${game.id}`
-    : currentUrl;
+    ? `${baseUrl}?game=${encodeURIComponent(game.id)}`
+    : baseUrl;
 
   const handleCopy = async () => {
     try {
@@ -123,7 +124,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-[var(--color-border)]">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-[#7C3AED]/10 text-[#7C3AED]">
+            <div className="p-2 rounded-xl bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
               <Share2 className="w-5 h-5" />
             </div>
             <div>
@@ -137,7 +138,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-[var(--color-bg)] text-[var(--color-text-secondary)] transition-colors"
+            aria-label={isAr ? 'إغلاق' : 'Close'}
+            className="icon-btn"
           >
             <X className="w-5 h-5" />
           </button>
@@ -194,7 +196,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({
           {typeof navigator !== 'undefined' && 'share' in navigator && (
             <button
               onClick={handleNativeShare}
-              className="w-full py-2.5 px-4 rounded-xl bg-[#7C3AED] text-white text-xs font-bold flex items-center justify-center gap-2 hover:bg-[#6D28D9] transition-all shadow-md shadow-[#7C3AED]/20"
+              className="w-full py-2.5 px-4 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold flex items-center justify-center gap-2 hover:bg-[var(--color-primary-hover)] transition-all shadow-md shadow-[var(--color-primary)]/20"
             >
               <ExternalLink className="w-4 h-4" />
               <span>{isAr ? 'مشاركة عبر تطبيقات الجهاز' : 'Share via System Apps'}</span>
